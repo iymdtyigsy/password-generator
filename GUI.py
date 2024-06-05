@@ -24,18 +24,26 @@ def copy():
     pass
 
 randompass_btn = ctk.CTkButton(root, text="random password", command=randompass)
-start_btn = ctk.CTkButton(root, text="start", command=start)
-quit_btn = ctk.CTkButton(root, text="quit", command=quit)
-tutorial_btn = ctk.CTkButton(root, text="tutorial", command=tutorial)
-enter_btn = ctk.CTkButton(root, text="Enter", command=enter)
-copy_btn = ctk.CTkButton(root, text="copy", command=copy)
+randompass_btn.pack(pady = 10)
 
-copy_btn.pack(pady = 80)
-enter_btn.pack(pady = 80)
-tutorial_btn.pack(pady = 80)
-quit_btn.pack(pady = 80)
-randompass_btn.pack(pady = 80)
-start_btn.pack(pady = 80)
+start_btn = ctk.CTkButton(root, text="start", command=start)
+start_btn.pack(pady = 10)
+
+quit_btn = ctk.CTkButton(root, text="quit", command=quit)
+quit_btn.pack(pady = 10)
+
+tutorial_btn = ctk.CTkButton(root, text="tutorial", command=tutorial)
+tutorial_btn.pack(pady = 10)
+
+enter_btn = ctk.CTkButton(root, text="Enter", command=enter)
+enter_btn.pack(pady = 10)
+
+copy_btn = ctk.CTkButton(root, text="copy", command=copy)
+copy_btn.pack(pady = 10)
+
+MainMenu_Frame = ctk.CTkFrame(master= root, fg_color="light gray")
+MainMenu_Frame.pack(side = "top", padx = 10, pady = 10)
+
 
 
 root.mainloop()
