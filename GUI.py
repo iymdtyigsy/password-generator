@@ -60,7 +60,19 @@ MainMenu_Mainframe.pack(side = "left",
                         padx = 20,
                         pady = 20,
                         fill = "both")
-
+                                       
+MainFrame_QuestionLable = ctk.CTkLabel(master= MainMenu_Mainframe,
+                                       text = "questions",
+                                       text_color = "black",
+                                       fg_color = "white",
+                                       font=("Bold", 20),
+                                       width= 500,
+                                       corner_radius= 5)
+MainFrame_QuestionLable.pack(side = "top",
+                             padx = 10,
+                             pady = 10, 
+                             expand = True)
+                                       
 #buttons
 randompass_btn = ctk.CTkButton(master= MainMenu_sideFrame1, 
                                text="random password", 
