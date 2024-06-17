@@ -4,7 +4,7 @@ import PIL as pil
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue") 
 
-class App(ctk.CTk):
+'''class App(ctk.CTk):
     def __init__(self):
         super().__init__()
     
@@ -155,5 +155,33 @@ class App(ctk.CTk):
         
         self.randpasswordFrame = ctk.CTkFrame(self)
 
-app = App()
+app = App() 
 app.mainloop()
+'''
+
+class randompassWindow():
+    def __init__(self, parent):
+        super().__init__(parent)
+        randpasMainFrame = ctk.CTkFrame(self,
+                                        fg_color="black",
+                                        width=700,
+                                        height=500)
+        randpasMainFrame.pack(fill="both", expand=True)
+        Label = ctk.CTkLabel(randpasMainFrame, text="Random Password")
+        Label.pack(padx=5, pady=5)
+
+class tutorWindow():
+    def __init__(self, parent):
+        super().__init__(parent)
+        tutorMainFrame = ctk.CTkFrame(self,
+                                      fg_color="black",
+                                      width=700,
+                                      height=500)
+        tutorMainFrame.pack(fill="both", expand=True)
+        Label = ctk.CTkLabel(tutorMainFrame, text="Tutorial")
+        Label.pack(padx=5, pady=5)
+
+class MainWindow():
+    def __init__(self, master):
+        super().__init__(master)
+        
