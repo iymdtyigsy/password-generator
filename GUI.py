@@ -159,29 +159,70 @@ app = App()
 app.mainloop()
 '''
 
-class randompassWindow():
+class MainMenuWindow(ctk.CTk):
+    def __init__(self, parent):
+        super().__init__(parent)
+        MainMenuMainFrame = ctk.CTkFrame(self, 
+                                        fg_color="black",
+                                        width=700,
+                                        height=500)
+        MainMenuMainFrame.pack(padx=10, pady=10)
+        Label = ctk.CTkLabel(MainMenuMainFrame, text="password generator")
+        Label.pack(padx=5, pady=5)
+
+class randompassWindow(ctk.CTk):
     def __init__(self, parent):
         super().__init__(parent)
         randpasMainFrame = ctk.CTkFrame(self,
                                         fg_color="black",
                                         width=700,
                                         height=500)
-        randpasMainFrame.pack(fill="both", expand=True)
+        randpasMainFrame.pack(padx=10, pady=10)
         Label = ctk.CTkLabel(randpasMainFrame, text="Random Password")
         Label.pack(padx=5, pady=5)
 
-class tutorWindow():
+class tutorWindow(ctk.CTk):
     def __init__(self, parent):
         super().__init__(parent)
         tutorMainFrame = ctk.CTkFrame(self,
                                       fg_color="black",
                                       width=700,
                                       height=500)
-        tutorMainFrame.pack(fill="both", expand=True)
+        tutorMainFrame.pack(padx=10, pady=10)
         Label = ctk.CTkLabel(tutorMainFrame, text="Tutorial")
         Label.pack(padx=5, pady=5)
 
 class MainWindow():
     def __init__(self, master):
-        super().__init__(master)
+        MainFrame = ctk.CTkFrame(master)
+        MainFrame.pack(padx=10, pady=10, fill="both", expand=True)
+        self_index = 0
+
+        self.framelist = [MainMenuWindow(MainFrame), 
+                          randompassWindow(MainFrame),
+                          tutorWindow(MainFrame)]
         
+        MainWindowSideFrame = ctk.CTkFrame(master, 
+                                           fg_color="gray")
+        MainWindowSideFrame.pack(side="right", 
+                                 fill="both",
+                                 expand=True,
+                                 padx=10,
+                                 pady=10)
+        
+        randompass_btn = ctk.CTkButton(MainWindowSideFrame, 
+                                       text="random password", 
+                                       command=randompass)
+        randompass_btn.pack(pady=10, padx=10)
+        tutorial_btn = ctk.CTkButton(MainWindowSideFrame, 
+                                     text="tutorial", 
+                                     command=tutorial)
+        tutorial_btn.pack(pady=10, padx=10)
+
+        def randompass(self):
+            self.framelist[self_index].forget()
+            
+
+app = ctk.CTk()
+Mainwindow = MainWindow(app)
+app.mainloop()
