@@ -395,30 +395,39 @@ class Mainwindow(ctk.CTk):
         
 
     def loadRandPass(self):
-        pass
+        self.randpassFrame = ctk.CTkFrame(self.MainFrameHolder,
+                                          fg_color="gray")
+        self.randpassFrame.pack(padx=10, pady=10, fill="both", expand=True)
 
     
     def loadtutorial(self):
         self.tutorialFrame = ctk.CTkFrame(self.MainFrameHolder,
-                                          fg_color= "gray")
+                                          fg_color="gray")
         self.tutorialFrame.pack(padx=10, pady=10, fill="both", expand=True)
-        
-        self.returnbtn = ctk.CTkButton(self.tutorialFrame,
+
+        self.tutorialFrameSEC = ctk.CTkFrame(self.MainFrameHolder,
+                                             fg_color="transparent")
+        self.tutorialFrameSEC.pack(side="right",padx=10, pady=10)
+
+        self.returnbtn = ctk.CTkButton(self.tutorialFrameSEC,
                                        text="return",
                                        font=("bold",20),
                                        command=self.Return,
                                        width=30,
                                        height=30)
-        self.returnbtn.place(relx=.85, rely=.85)
+        self.returnbtn.pack(side="right",padx=10, pady=10)
         
         self.textbox = ctk.CTkTextbox(self.tutorialFrame,
-                                   fg_color="gray",
-                        
+                                      fg_color="gray",
+                                      font=("bold", 20)
                                    )
         self.textbox.pack(padx=10, pady=10, fill="both", expand=True)
 
-        self.textbox.insert("0.0", "CTkTextbox\n\n" + "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n" * 20)
-
+        self.textbox.insert("0.0", "Tutorial\n\n" + 
+        """
+        This is tutorial
+        """)
+        self.textbox.configure(state = ctk.DISABLED)
 
 
     def delete_current(self):
