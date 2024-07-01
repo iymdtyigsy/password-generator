@@ -260,6 +260,9 @@ class Mainwindow(ctk.CTk):
         self.answer_entry.configure(state="normal")
         self.answer_entry.delete(0, tk.END)
 
+    def generate(self):
+        pass
+
     def __init__(self):
         super().__init__()
     
@@ -291,7 +294,7 @@ class Mainwindow(ctk.CTk):
                                             height=400)
         self.MainFrameHolder.pack(padx=10, pady=10, fill="both", expand=True)
 
-        self.loadtutorial()
+        self.loadRandPass()
 
     def loadMainFrame(self):
 
@@ -395,10 +398,63 @@ class Mainwindow(ctk.CTk):
         
 
     def loadRandPass(self):
-        self.randpassFrame = ctk.CTkFrame(self.MainFrameHolder,
-                                          fg_color="gray")
-        self.randpassFrame.pack(padx=10, pady=10, fill="both", expand=True)
+        self.MainMenu_sideFrame1 = ctk.CTkFrame(self.MainFrameHolder, 
+                                                fg_color="gray")
+        self.MainMenu_sideFrame1.pack(side="right", 
+                                padx=20, 
+                                pady=20)
 
+        self.MainMenu_Mainframe = ctk.CTkFrame(self.MainFrameHolder,
+                                               fg_color="gray",)
+        self.MainMenu_Mainframe.pack(side="left",
+                                padx=20,
+                                pady=20)
+        
+        self.MainMenu_MainframeSEC = ctk.CTkFrame(self.Main,
+                                               fg_color="gray",)
+        self.MainMenu_Mainframe.pack(side="left",
+                                padx=20,
+                                pady=20)
+
+        self.Mainframe_passwordlabel = ctk.CTkLabel(self.MainMenu_Mainframe,
+                                                    text="password",
+                                                    text_color="black",
+                                                    fg_color="white",
+                                                    width=500,
+                                                    height=30,
+                                                    corner_radius=5)
+        self.Mainframe_passwordlabel.pack(pady=10,
+                                          padx=10)
+        
+        self.Mainframe_passwordstrength = ctk.CTkProgressBar(
+                                            self.MainMenu_Mainframe,)
+        self.Mainframe_passwordstrength.pack(pady=10,
+                                             padx=10)
+                                            
+        #buttons
+        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+                                       text="Generate", 
+                                       command=self.generate)
+        self.generate_btn.pack(pady=10, 
+                            padx=10)
+
+        self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+                                      text="quit", 
+                                      command=self.quit)
+        self.quit_btn.pack(pady=10, 
+                           padx=10)
+
+        self.tutorial_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+                                          text="tutorial", 
+                                          command=self.tutorial)
+        self.tutorial_btn.pack(pady=10, 
+                               padx=10)
+
+        self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+                                      text="Copy", 
+                                      command=self.copy,)
+        self.copy_btn.pack(pady=10,
+                           padx=10)
     
     def loadtutorial(self):
         self.tutorialFrame = ctk.CTkFrame(self.MainFrameHolder,
