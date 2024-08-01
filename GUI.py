@@ -4,7 +4,9 @@ import random as rand
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue") 
 
-questionlist = [
+class Mainwindow(ctk.CTk):
+
+    questionlist = [
     "What's your favorite animal?",
     "Which celebrity would you choose for your best friend?",
     """If you could only wear one color for the rest of your life, 
@@ -18,26 +20,31 @@ questionlist = [
     "What was your favorite subject in school?",
     "What do you enjoy doing in your free time?",
     "What is your hobby or one of your hobbies?",
-]
+    ]
 
-CurrentClone = None
-def GetStartQuestions(clone):
-    if not clone:
-        clone = questionlist.copy()
-    return clone
+    CurrentClone = None
+    def GetStartQuestions(self, clone):
+        if clone == None:
+            clone = self.questionlist.copy()
+        return clone
 
-def ResetStartQuestions(clone):
-    clone = None
+    def ResetStartQuestions(self, clone):
+        clone = None
 
-def GetRandQuesiton():
-    questions_list = GetStartQuestions(CurrentClone)
-    index = rand.randrange(1, len(questions_list))
-    question = questions_list[index]
-    questionlist.pop(index)
-    return question
-
-class Mainwindow(ctk.CTk):
+    def GetRandQuesiton(self):
+        questions_list = self.GetStartQuestions(self.CurrentClone)
+        index = rand.randrange(1, len(questions_list))
+        question = questions_list[index]
+        self.questionlist.pop(index)
+        return question
+        
     NumberOfQuestionAsked = 0
+
+    def CheckNumQuestionAsked(self, check):
+        if check == 3:
+            True
+        else:
+            False            
 
     def PassgenerateAlgo(self):
         pass 
@@ -53,15 +60,17 @@ class Mainwindow(ctk.CTk):
         self.loadRandPass()
         
     def start(self):
-        self.MainFrame_QuestionLable.configure(text= GetRandQuesiton())
+        self.MainFrame_QuestionLable.configure(text= self.GetRandQuesiton())
         self.start_btn.configure(state = "disabled")
         self.skip_btn.configure(state = "normal")
+        self.NumberOfQuestionAsked + 1
 
     def restart(self):
         self.MainFrame_QuestionLable.configure(text= "Click start to start." )
         self.start_btn.configure(state = "normal")
         self.skip_btn.configure(state = "disabled")
-        ResetStartQuestions()
+        self.ResetStartQuestions
+        self.NumberOfQuestionAsked = 0
 
     def Return(self):
         self.delete_current()
@@ -75,15 +84,22 @@ class Mainwindow(ctk.CTk):
         self.loadtutorial()
 
     def enter(self):
+        CheckNumQuestion = self.CheckNumQuestionAsked(self.NumberOfQuestionAsked)
         print(self.answer_entry.get())
         self.answer_entry.delete(0, tk.END)
-        self.MainFrame_QuestionLable.configure(text= GetRandQuesiton())
+        self.MainFrame_QuestionLable.configure(text=self.GetRandQuesiton())
+        self.NumberOfQuestionAsked + 1
+        if CheckNumQuestion:
+            self.enter_btn.configure(state = "disable")
+        else:
+            self.enter_btn.configure(state = "normal")
+        
 
     def copy(self):
         pass
 
     def skip(self):
-        self.MainFrame_QuestionLable.configure(text= GetRandQuesiton())
+        self.MainFrame_QuestionLable.configure(text= self.GetRandQuesiton())
 
     def generate(self):
         pass
@@ -288,33 +304,33 @@ class Mainwindow(ctk.CTk):
         #buttons
         self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
                                        text="Generate", 
-                                       command=self.generate)
+                                       command=self.generate())
         self.generate_btn.pack(pady=10,padx=10)
 
         self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
                                       text="Copy", 
-                                      command=self.copy)
+                                      command=self.copy())
         self.copy_btn.pack(pady=10,padx=10)
 
         self.reset_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
                                       text="Reset", 
-                                      command=self.reset)
+                                      command=self.reset())
         self.reset_btn.pack(pady=10,padx=10)
 
         self.tutorial_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
                                           text="tutorial", 
-                                          command=self.tutorial)
+                                          command=self.tutorial())
         self.tutorial_btn.pack(pady=10,padx=10)
 
         self.returnbtn = ctk.CTkButton(self.MainMenu_sideFrame1,
                                        text="return",
-                                       command=self.Return,)
+                                       command=self.Return())
         self.returnbtn.pack(padx=10, pady=10)
 
         self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
                                       text="quit", 
                                       hover_color="brown2",
-                                      command=self.quit)
+                                      command=self.quit())
         self.quit_btn.pack(pady=10,padx=10)
 
         self.lengthlabel = ctk.CTkLabel(self.SECframeSector1,
