@@ -63,12 +63,14 @@ class Mainwindow(ctk.CTk):
         self.MainFrame_QuestionLable.configure(text= self.GetRandQuesiton())
         self.start_btn.configure(state = "disabled")
         self.skip_btn.configure(state = "normal")
+        self.enter_btn.configure(state = "normal")
         self.NumberOfQuestionAsked + 1
 
     def restart(self):
         self.MainFrame_QuestionLable.configure(text= "Click start to start." )
         self.start_btn.configure(state = "normal")
         self.skip_btn.configure(state = "disabled")
+        self.enter_btn.configure(state = "disabled")
         self.ResetStartQuestions
         self.NumberOfQuestionAsked = 0
 
@@ -90,7 +92,7 @@ class Mainwindow(ctk.CTk):
         self.MainFrame_QuestionLable.configure(text=self.GetRandQuesiton())
         self.NumberOfQuestionAsked + 1
         if CheckNumQuestion:
-            self.enter_btn.configure(state = "disable")
+            self.enter_btn.configure(state = "disabled")
         else:
             self.enter_btn.configure(state = "normal")
         
@@ -236,6 +238,7 @@ class Mainwindow(ctk.CTk):
         self.enter_btn = ctk.CTkButton(self.MainMenu_sideFrame2, 
                                        text="Enter", 
                                        command=self.enter,
+                                       state= "disabled",
                                        width=10)
         self.enter_btn.pack(pady=5, 
                             padx=5)
