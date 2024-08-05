@@ -69,7 +69,7 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = "disabled")
         self.skip_btn.configure(state = "disabled")
         self.enter_btn.configure(state = "disabled")
-        self.ResetStartQuestions
+        self.ResetStartQuestions(self.CurrentClone)
         self.NumberOfQuestionAsked = 0
 
     def Return(self):
