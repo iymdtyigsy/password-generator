@@ -62,12 +62,16 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = "normal")
         self.skip_btn.configure(state = "normal")
         self.NumberOfQuestionAsked += 1
+        self.enter_btn.configure(state = "normal")
+        self.NumberOfQuestionAsked + 1
+
 
     def restart(self):
         self.MainFrame_QuestionLable.configure(text= "Click start to start." )
         self.start_btn.configure(state = "normal")
         self.enter_btn.configure(state = "disabled")
         self.skip_btn.configure(state = "disabled")
+        self.enter_btn.configure(state = "disabled")
         self.ResetStartQuestions
         self.NumberOfQuestionAsked = 0
 
@@ -91,6 +95,12 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         if CheckNumQuestion ==3:
             self.MainFrame_QuestionLable.configure(text = "Here is your password")
+        self.NumberOfQuestionAsked + 1
+        if CheckNumQuestion:
+            self.enter_btn.configure(state = "disabled")
+        else:
+            self.enter_btn.configure(state = "normal")
+        
 
     def copy(self):
         pass
@@ -234,6 +244,7 @@ class Mainwindow(ctk.CTk):
                                        text="Enter", 
                                        state="disabled",
                                        command=self.enter,
+                                       state= "disabled",
                                        width=10)
         self.enter_btn.pack(pady=5, 
                             padx=5)
