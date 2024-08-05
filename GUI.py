@@ -41,11 +41,8 @@ class Mainwindow(ctk.CTk):
     NumberOfQuestionAsked = 0
 
     def CheckNumQuestionAsked(self, check):
-        if check == 3:
-            True
-        else:
-            False            
-
+        return check == 3          
+    
     def PassgenerateAlgo(self):
         pass 
 
@@ -62,12 +59,14 @@ class Mainwindow(ctk.CTk):
     def start(self):
         self.MainFrame_QuestionLable.configure(text= self.GetRandQuesiton())
         self.start_btn.configure(state = "disabled")
+        self.enter_btn.configure(state = "normal")
         self.skip_btn.configure(state = "normal")
-        self.NumberOfQuestionAsked + 1
+        self.NumberOfQuestionAsked += 1
 
     def restart(self):
         self.MainFrame_QuestionLable.configure(text= "Click start to start." )
         self.start_btn.configure(state = "normal")
+        self.enter_btn.configure(state = "disabled")
         self.skip_btn.configure(state = "disabled")
         self.ResetStartQuestions
         self.NumberOfQuestionAsked = 0
@@ -88,12 +87,10 @@ class Mainwindow(ctk.CTk):
         print(self.answer_entry.get())
         self.answer_entry.delete(0, tk.END)
         self.MainFrame_QuestionLable.configure(text=self.GetRandQuesiton())
-        self.NumberOfQuestionAsked + 1
-        if CheckNumQuestion:
-            self.enter_btn.configure(state = "disable")
-        else:
-            self.enter_btn.configure(state = "normal")
-        
+        self.NumberOfQuestionAsked += 1
+        self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
+        if CheckNumQuestion ==3:
+            self.MainFrame_QuestionLable.configure(text = "Here is your password")
 
     def copy(self):
         pass
@@ -235,6 +232,7 @@ class Mainwindow(ctk.CTk):
 
         self.enter_btn = ctk.CTkButton(self.MainMenu_sideFrame2, 
                                        text="Enter", 
+                                       state="disabled",
                                        command=self.enter,
                                        width=10)
         self.enter_btn.pack(pady=5, 
@@ -251,9 +249,10 @@ class Mainwindow(ctk.CTk):
         
 
     def loadRandPass(self):
-        self.MainMenu_sideFrame1 = ctk.CTkFrame(self.MainFrameHolder, 
+        self.MainMenu_sideFrame1RAND = ctk.CTkFrame(self.MainFrameHolder, 
                                                 fg_color="light gray")
-        self.MainMenu_sideFrame1.pack(side="right", padx=10, pady=10)
+        self.MainMenu_sideFrame1RAND.pack(side="right", padx=10, pady=10)
+
 
         self.MainMenu_Mainframe = ctk.CTkFrame(self.MainFrameHolder,
                                                fg_color="light grey",)
@@ -302,35 +301,36 @@ class Mainwindow(ctk.CTk):
         self.Slider.set(8)
                                             
         #buttons
-        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+
+        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
                                        text="Generate", 
-                                       command=self.generate())
+                                       command=self.generate)
         self.generate_btn.pack(pady=10,padx=10)
 
-        self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+        self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
                                       text="Copy", 
-                                      command=self.copy())
+                                      command=self.copy)
         self.copy_btn.pack(pady=10,padx=10)
 
-        self.reset_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+        self.reset_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
                                       text="Reset", 
-                                      command=self.reset())
+                                      command=self.reset)
         self.reset_btn.pack(pady=10,padx=10)
 
-        self.tutorial_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+        self.tutorial_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
                                           text="tutorial", 
-                                          command=self.tutorial())
+                                          command=self.tutorial)
         self.tutorial_btn.pack(pady=10,padx=10)
 
-        self.returnbtn = ctk.CTkButton(self.MainMenu_sideFrame1,
+        self.returnbtn = ctk.CTkButton(self.MainMenu_sideFrame1RAND,
                                        text="return",
-                                       command=self.Return())
+                                       command=self.Return)
         self.returnbtn.pack(padx=10, pady=10)
 
-        self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
+        self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
                                       text="quit", 
                                       hover_color="brown2",
-                                      command=self.quit())
+                                      command=self.quit)
         self.quit_btn.pack(pady=10,padx=10)
 
         self.lengthlabel = ctk.CTkLabel(self.SECframeSector1,
@@ -380,8 +380,6 @@ class Mainwindow(ctk.CTk):
                                         onvalue="on",
                                         offvalue="off")
         self.checkboxlow.pack(pady=5,padx=5)
-
-
 
     def loadtutorial(self):
         self.tutorialFrame = ctk.CTkFrame(self.MainFrameHolder,
