@@ -1,6 +1,6 @@
 import tkinter as tk
 import customtkinter as ctk
-import random as rand
+import random, copy
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue") 
 
@@ -21,30 +21,40 @@ class Mainwindow(ctk.CTk):
     "What do you enjoy doing in your free time?",
     "What is your hobby or one of your hobbies?",
     ]
+    answers = []
+    NumberOfQuestionAsked = 0
 
     CurrentClone = None
-    def GetStartQuestions(self, clone):
-        if clone == None:
-            clone = self.questionlist.copy()
-        return clone
+    def GetStartQuestions(self):
+        if self.CurrentClone == None:
+            self.CurrentClone = copy.deepcopy(self.questionlist)
+        return self.CurrentClone
 
-    def ResetStartQuestions(self, clone):
-        clone = None
+    def ResetStartQuestions(self):
+        self.CurrentClone = None
+
 
     def GetRandQuesiton(self):
-        questions_list = self.GetStartQuestions(self.CurrentClone)
-        index = rand.randrange(1, len(questions_list))
+        questions_list = self.GetStartQuestions()
+        index = random.randrange(1, len(questions_list))
         question = questions_list[index]
-        self.questionlist.pop(index)
+        self.CurrentClone.pop(index)
         return question
-        
-    NumberOfQuestionAsked = 0
 
     def CheckNumQuestionAsked(self, check):
         return check == 3          
     
-    def PassgenerateAlgo(self):
-        pass 
+    def PassgenerateAlgo(self, answer):
+        answerslist = [str(items).replace(' ',"") for items in answer]
+        random.shuffle(answerslist)
+        between = ''
+        password = between.join(answerslist)
+        self.answers.clear()
+        return password
+
+        """get the list
+           then remove the space in all of """
+
 
     def reset(self):
         pass
@@ -69,7 +79,7 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = "disabled")
         self.skip_btn.configure(state = "disabled")
         self.enter_btn.configure(state = "disabled")
-        self.ResetStartQuestions(self.CurrentClone)
+        self.ResetStartQuestions()
         self.NumberOfQuestionAsked = 0
 
     def Return(self):
@@ -85,13 +95,16 @@ class Mainwindow(ctk.CTk):
 
     def enter(self):
         CheckNumQuestion = self.CheckNumQuestionAsked(self.NumberOfQuestionAsked)
-        print(self.answer_entry.get())
+        self.answers.append(self.answer_entry.get())
         self.answer_entry.delete(0, tk.END)
         self.MainFrame_QuestionLable.configure(text=self.GetRandQuesiton())
         self.NumberOfQuestionAsked += 1
+        print(self.answers)
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
-        if CheckNumQuestion ==3:
+        self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
+        if CheckNumQuestion:
             self.MainFrame_QuestionLable.configure(text = "Here is your password")
+            print(self.PassgenerateAlgo(self.answers))
         
 
     def copy(self):
