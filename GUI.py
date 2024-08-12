@@ -1,6 +1,7 @@
 import tkinter as tk
 import customtkinter as ctk
 import random, copy
+import string
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue") 
 
@@ -51,8 +52,31 @@ class Mainwindow(ctk.CTk):
         self.answers.clear()
         return password
     
-    def Pass_strengthAlgo(self, Password):
-        pass
+    def Pass_strengthAlgo(self, password):
+        upper_case = any([1 if c in string.ascii_uppercase else 0 for c in password])
+        lower_case = any([1 if c in string.ascii_lowercase else 0 for c in password])
+        special = any([1 if c in string.punctuation else 0 for c in password])
+        digits = any([1 if c in string.digits else 0 for c in password])
+
+        character = [upper_case, lower_case, special, digits]
+
+        length = len(password)
+
+        score = 0
+
+        with open('common.txt',"r"):
+        if length > 8:
+            score += 1 
+        if length > 12:
+            score += 1 
+        if length > 17:
+            score += 1 
+        if length > 20:
+
+                    
+        
+
+
 
     def reset(self):
         pass
@@ -78,6 +102,7 @@ class Mainwindow(ctk.CTk):
         self.skip_btn.configure(state = "disabled")
         self.enter_btn.configure(state = "disabled")
         self.ResetStartQuestions()
+        self.Mainframe_passwordlabel.configure(text = "")
         self.NumberOfQuestionAsked = 0
 
     def Return(self):
@@ -101,10 +126,8 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
         if CheckNumQuestion:
-            self.Mainframe_passwordlabel.configure(text = "")
             self.MainFrame_QuestionLable.configure(text = "Here is your password")
             self.Mainframe_passwordlabel.configure(text = f"{self.PassgenerateAlgo(self.answers)}")
-        
 
     def copy(self):
         pass
@@ -191,7 +214,7 @@ class Mainwindow(ctk.CTk):
                                padx=5) 
 
         self.Mainframe_passwordlabel = ctk.CTkLabel(self.MainMenu_Mainframe,
-                                                    text="password",
+                                                    text="",
                                                     text_color="black",
                                                     fg_color="white",
                                                     width=500,
