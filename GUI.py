@@ -33,7 +33,6 @@ class Mainwindow(ctk.CTk):
     def ResetStartQuestions(self):
         self.CurrentClone = None
 
-
     def GetRandQuesiton(self):
         questions_list = self.GetStartQuestions()
         index = random.randrange(1, len(questions_list))
@@ -48,13 +47,12 @@ class Mainwindow(ctk.CTk):
         answerslist = [str(items).replace(' ',"") for items in answer]
         random.shuffle(answerslist)
         between = ''
-        password = between.join(answerslist)
+        password = between.join(answerslist)+(str(random.randrange(1, 100)))
         self.answers.clear()
         return password
-
-        """get the list
-           then remove the space in all of """
-
+    
+    def Pass_strengthAlgo(self, Password):
+        pass
 
     def reset(self):
         pass
@@ -103,8 +101,9 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
         if CheckNumQuestion:
+            self.Mainframe_passwordlabel.configure(text = "")
             self.MainFrame_QuestionLable.configure(text = "Here is your password")
-            print(self.PassgenerateAlgo(self.answers))
+            self.Mainframe_passwordlabel.configure(text = f"{self.PassgenerateAlgo(self.answers)}")
         
 
     def copy(self):
