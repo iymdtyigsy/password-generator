@@ -50,6 +50,8 @@ class Mainwindow(ctk.CTk):
         between = ''
         password = between.join(answerslist)+(str(random.randrange(1, 100)))
         self.answers.clear()
+        if not answerslist:
+            return "you have not answer the questions"
         return password
     
     def Pass_strengthAlgo(self, password):
@@ -64,19 +66,15 @@ class Mainwindow(ctk.CTk):
 
         score = 0
 
-        with open('common.txt',"r"):
-        if length > 8:
-            score += 1 
-        if length > 12:
-            score += 1 
-        if length > 17:
-            score += 1 
-        if length > 20:
+        #with open('common.txt',"r") as f:
 
-                    
-        
-
-
+        #if length > 8:
+        #    score += 1 
+       #if length > 12:
+        #    score += 1 
+        #if length > 17:
+        #    score += 1 
+        #if length > 20:
 
     def reset(self):
         pass
@@ -118,7 +116,8 @@ class Mainwindow(ctk.CTk):
 
     def enter(self):
         CheckNumQuestion = self.CheckNumQuestionAsked(self.NumberOfQuestionAsked)
-        self.answers.append(self.answer_entry.get())
+        if len(self.answer_entry.get()) != 0:
+            self.answers.append(self.answer_entry.get())
         self.answer_entry.delete(0, tk.END)
         self.MainFrame_QuestionLable.configure(text=self.GetRandQuesiton())
         self.NumberOfQuestionAsked += 1
@@ -128,9 +127,13 @@ class Mainwindow(ctk.CTk):
         if CheckNumQuestion:
             self.MainFrame_QuestionLable.configure(text = "Here is your password")
             self.Mainframe_passwordlabel.configure(text = f"{self.PassgenerateAlgo(self.answers)}")
+            self.copy_btn.configure(state = "normal")
 
     def copy(self):
-        pass
+        password = self.Mainframe_passwordlabel.cget("text")
+        self.clipboard_clear()
+        self.clipboard_append(password)
+        self.copy_btn.configure(state = "disabled")
 
     def skip(self):
         self.MainFrame_QuestionLable.configure(text= self.GetRandQuesiton())
@@ -261,7 +264,8 @@ class Mainwindow(ctk.CTk):
                                padx=10)
 
         self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame2, 
-                                      text="Copy", 
+                                      text="Copy",
+                                      state="disabled", 
                                       command=self.copy,
                                       width=10)
         self.copy_btn.pack(pady=5,
