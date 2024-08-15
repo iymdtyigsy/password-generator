@@ -1,7 +1,9 @@
 import tkinter as tk
 import customtkinter as ctk
-import random, copy
+import random
+import copy
 import string
+import re
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue") 
 
@@ -54,27 +56,71 @@ class Mainwindow(ctk.CTk):
             return "you have not answer the questions"
         return password
     
-    def Pass_strengthAlgo(self, password):
-        upper_case = any([1 if c in string.ascii_uppercase else 0 for c in password])
-        lower_case = any([1 if c in string.ascii_lowercase else 0 for c in password])
-        special = any([1 if c in string.punctuation else 0 for c in password])
-        digits = any([1 if c in string.digits else 0 for c in password])
-
-        character = [upper_case, lower_case, special, digits]
+    def Pass_strengthcheck(self, password):
 
         length = len(password)
+            
+        with open("common.txt","r") as f:
+            common_password = f.read().splitlines()
 
         score = 0
 
-        #with open('common.txt',"r") as f:
+        if length < 8:
+            return 1, 
+            """
+            Very Weak: Password must be at least 8 characters long.
+            """, 0.2
+        elif length >= 8 and length < 12:
+            score += 1
+        elif length >= 12:
+            score += 2
 
-        #if length > 8:
-        #    score += 1 
-       #if length > 12:
-        #    score += 1 
-        #if length > 17:
-        #    score += 1 
-        #if length > 20:
+        if password in common_password:
+            return 1, 
+            """
+            Very Weak: This password is too common. Choose a more unique password.
+            """, 
+            0.2
+
+        if re.search(r"[A-Z]", password):
+            score += 1
+
+        if re.search(r"[a-z]", password):
+            score += 1
+
+        if re.search(r"\d", password):
+            score += 1
+
+        if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+            score += 1
+
+        if score == 1:
+            return 2, "Weak", 0.4
+        elif score == 2:
+            return 3, "Fair", 0.6
+        elif score == 3:
+            return 4, "Good", 0.8
+        elif score >= 4:
+            return 5, "Strong", 1.0
+    
+    def Pass_strengthdisplay(self):
+        password = self.Mainframe_passwordlabel.cget("text")
+        rank, message, progress = self.Pass_strengthcheck(password)
+        self.Strength_label.configure(text=f"""
+        Password Strength: {message} (Rank: {rank}/5)
+        """)
+        self.Mainframe_passwordstrength.set(progress)
+
+        if rank == 1:
+            self.Mainframe_passwordstrength.configure(progress_color="red")
+        elif rank == 2:
+            self.Mainframe_passwordstrength.configure(progress_color="orange")
+        elif rank == 3:
+            self.Mainframe_passwordstrength.configure(progress_color="yellow")
+        elif rank == 4:
+            self.Mainframe_passwordstrength.configure(progress_color="lightgreen")
+        elif rank == 5:
+            self.Mainframe_passwordstrength.configure(progress_color="green")
 
     def reset(self):
         pass
@@ -87,14 +133,14 @@ class Mainwindow(ctk.CTk):
         self.loadRandPass()
         
     def start(self):
-        self.MainFrame_QuestionLable.configure(text= self.GetRandQuesiton())
+        self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
         self.start_btn.configure(state = "disabled")
         self.enter_btn.configure(state = "normal")
         self.skip_btn.configure(state = "normal")
         self.NumberOfQuestionAsked += 1
 
     def restart(self):
-        self.MainFrame_QuestionLable.configure(text= "Click start to start." )
+        self.MainFrame_QuestionLabel.configure(text= "Click start to start." )
         self.start_btn.configure(state = "normal")
         self.enter_btn.configure(state = "disabled")
         self.skip_btn.configure(state = "disabled")
@@ -119,16 +165,16 @@ class Mainwindow(ctk.CTk):
         if len(self.answer_entry.get()) != 0:
             self.answers.append(self.answer_entry.get())
         self.answer_entry.delete(0, tk.END)
-        self.MainFrame_QuestionLable.configure(text=self.GetRandQuesiton())
+        self.MainFrame_QuestionLabel.configure(text=self.GetRandQuesiton())
         self.NumberOfQuestionAsked += 1
         print(self.answers)
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
         if CheckNumQuestion:
-            self.MainFrame_QuestionLable.configure(text = "Here is your password")
+            self.MainFrame_QuestionLabel.configure(text = "Here is your password")
             self.Mainframe_passwordlabel.configure(text = f"{self.PassgenerateAlgo(self.answers)}")
             self.copy_btn.configure(state = "normal")
-
+            
     def copy(self):
         password = self.Mainframe_passwordlabel.cget("text")
         self.clipboard_clear()
@@ -136,7 +182,7 @@ class Mainwindow(ctk.CTk):
         self.copy_btn.configure(state = "disabled")
 
     def skip(self):
-        self.MainFrame_QuestionLable.configure(text= self.GetRandQuesiton())
+        self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
 
     def generate(self):
         pass
@@ -198,15 +244,14 @@ class Mainwindow(ctk.CTk):
                                 padx=20,
                                 pady=20)
         
-        self.MainFrame_QuestionLable = ctk.CTkLabel(self.MainMenu_Mainframe,
+        self.MainFrame_QuestionLabel = ctk.CTkLabel(self.MainMenu_Mainframe,
                                                     text="Click start to start.",
                                                     text_color="black",
                                                     fg_color="white",
-                                                    font=("Bold",13),
                                                     width=500,
                                                     height=50,
                                                     corner_radius=5)
-        self.MainFrame_QuestionLable.pack(padx=10,
+        self.MainFrame_QuestionLabel.pack(padx=10,
                                           pady=10)
         
         #Entry
@@ -226,8 +271,13 @@ class Mainwindow(ctk.CTk):
         self.Mainframe_passwordlabel.pack(pady=10,
                                           padx=10)
         
+
+        self.Strength_label = ctk.CTkLabel(self.MainMenu_Mainframe, text="")
+        self.Strength_label.pack(pady=10)
+
         self.Mainframe_passwordstrength = ctk.CTkProgressBar(
                                             self.MainMenu_Mainframe,)
+        self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.pack(pady=10,
                                              padx=10)
                                             
@@ -279,13 +329,11 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.pack(pady=5, 
                             padx=5)
 
-        self.skip_btn = ctk.CTkButton(self.MainMenu_sideFrame2,
-                                       text="Skip",
-                                       command=self.skip,
-                                       state= "disabled",
-                                       width=10)
-        self.skip_btn.pack(pady=5, 
-                            padx=5)
+        self.skip_btn = ctk.CTkButton(self.MainMenu_sideFrame2, text="Skip", command=self.skip, state= "disabled", width=10)
+        self.skip_btn.pack(pady=5, padx=5)
+        
+        check_button = ctk.CTkButton(self.MainMenu_sideFrame2, text="Check", command=self.Pass_strengthdisplay,width=10)
+        check_button.pack(pady=5,padx=5)
         
         
 
@@ -376,7 +424,6 @@ class Mainwindow(ctk.CTk):
 
         self.lengthlabel = ctk.CTkLabel(self.SECframeSector1,
                                         text=self.Slider.get(),
-                                        font=("Helvetica", 15),
                                         fg_color="light gray",
                                         text_color= "black",
                                         corner_radius= 5)
@@ -433,15 +480,13 @@ class Mainwindow(ctk.CTk):
 
         self.returnbtn = ctk.CTkButton(self.tutorialFrameSEC,
                                        text="return",
-                                       font=("bold",20),
                                        command=self.Return,
                                        width=30,
                                        height=30)
         self.returnbtn.pack(side="right",padx=10, pady=10)
         
         self.textbox = ctk.CTkTextbox(self.tutorialFrame,
-                                      fg_color="gray",
-                                      font=("bold", 20)
+                                      fg_color="gray"
                                    )
         self.textbox.pack(padx=10, pady=10, fill="both", expand=True)
 
