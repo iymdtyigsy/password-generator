@@ -53,8 +53,25 @@ class Mainwindow(ctk.CTk):
         password = between.join(answerslist)+(str(random.randrange(1, 100)))
         self.answers.clear()
         if not answerslist:
-            return "you have not answer the questions"
+            self.check_btn.configure(state = "disabled")
+            return None
         return password
+    
+    def split_string(self, string: str, max_characters: int):
+        lines = []
+        current_line = ""
+
+        for word in string.split():
+            if len(current_line) + len(word) + 1 <= max_characters:
+                current_line += word + " "
+            else:
+                lines.append(current_line.strip())
+                current_line = word + " "
+    
+        if current_line:
+            lines.append(current_line.strip())
+
+        return '\n'.join(lines)
     
     def Pass_strengthcheck(self, password):
 
@@ -66,21 +83,16 @@ class Mainwindow(ctk.CTk):
         score = 0
 
         if length < 8:
-            return 1, 
-            """
-            Very Weak: Password must be at least 8 characters long.
-            """, 0.2
+            return 1, self.split_string("Very Weak: Password must be at least 8 characters long.", 20), 0.2
+        
         elif length >= 8 and length < 12:
             score += 1
+
         elif length >= 12:
             score += 2
 
         if password in common_password:
-            return 1, 
-            """
-            Very Weak: This password is too common. Choose a more unique password.
-            """, 
-            0.2
+            return 1, self.split_string("Very Weak: This password is too common. Choose a more unique password.", 20), 0.2
 
         if re.search(r"[A-Z]", password):
             score += 1
@@ -106,6 +118,7 @@ class Mainwindow(ctk.CTk):
     def Pass_strengthdisplay(self):
         password = self.Mainframe_passwordlabel.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
+        print(password)
         self.Strength_label.configure(text=f"""
         Password Strength: {message} (Rank: {rank}/5)
         """)
@@ -133,7 +146,7 @@ class Mainwindow(ctk.CTk):
         self.loadRandPass()
         
     def start(self):
-        self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
+        self.MainFrame_QuestionLabel.configure(text= self.split_string(self.GetRandQuesiton(), 20))
         self.start_btn.configure(state = "disabled")
         self.enter_btn.configure(state = "normal")
         self.skip_btn.configure(state = "normal")
@@ -145,6 +158,10 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = "disabled")
         self.skip_btn.configure(state = "disabled")
         self.enter_btn.configure(state = "disabled")
+        self.check_btn.configure(state = "disabled")
+        self.Strength_label.configure(text = "")
+        self.Mainframe_passwordstrength.set(0)
+        self.Mainframe_passwordstrength.configure(progress_color="")
         self.ResetStartQuestions()
         self.Mainframe_passwordlabel.configure(text = "")
         self.NumberOfQuestionAsked = 0
@@ -171,9 +188,16 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
         if CheckNumQuestion:
-            self.MainFrame_QuestionLabel.configure(text = "Here is your password")
-            self.Mainframe_passwordlabel.configure(text = f"{self.PassgenerateAlgo(self.answers)}")
+            result = self.PassgenerateAlgo(self.answers)
+            self.MainFrame_QuestionLabel.configure(
+                text = result and "Here is your password" or "You have not entered any answers press restart to restart")
+            self.Mainframe_passwordlabel.configure(text = 
+                f"{result or ""}")
+            self.check_btn.configure(state = "normal")
             self.copy_btn.configure(state = "normal")
+            if not result:
+                self.check_btn.configure(state = "disabled")
+                self.copy_btn.configure(state = "disabled")
             
     def copy(self):
         password = self.Mainframe_passwordlabel.cget("text")
@@ -183,6 +207,9 @@ class Mainwindow(ctk.CTk):
 
     def skip(self):
         self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
+        if self.GetRandQuesiton() == None:
+            self.ResetStartQuestions()
+            self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
 
     def generate(self):
         pass
@@ -332,8 +359,8 @@ class Mainwindow(ctk.CTk):
         self.skip_btn = ctk.CTkButton(self.MainMenu_sideFrame2, text="Skip", command=self.skip, state= "disabled", width=10)
         self.skip_btn.pack(pady=5, padx=5)
         
-        check_button = ctk.CTkButton(self.MainMenu_sideFrame2, text="Check", command=self.Pass_strengthdisplay,width=10)
-        check_button.pack(pady=5,padx=5)
+        self.check_btn = ctk.CTkButton(self.MainMenu_sideFrame2, text="Check", command=self.Pass_strengthdisplay, state = "disabled", width=10)
+        self.check_btn.pack(pady=5,padx=5)
         
         
 
