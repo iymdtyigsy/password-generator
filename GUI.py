@@ -29,8 +29,7 @@ class Mainwindow(ctk.CTk):
 
     CurrentClone = None
     def GetStartQuestions(self):
-        if self.CurrentClone == None:
-            self.CurrentClone = copy.deepcopy(self.questionlist)
+        self.CurrentClone = copy.deepcopy(self.questionlist)
         return self.CurrentClone
 
     def ResetStartQuestions(self):
@@ -38,10 +37,21 @@ class Mainwindow(ctk.CTk):
 
     def GetRandQuesiton(self):
         questions_list = self.GetStartQuestions()
-        index = random.randrange(1, len(questions_list))
+
+        #Ensure there's more than one item
+        if len(questions_list) > 1:
+            index = random.randrange(1, len(questions_list))
+        else:
+            index = 0
+
         question = questions_list[index]
         self.CurrentClone.pop(index)
         return question
+
+        #index = random.randint(0, len(questions_list)-1)
+        #question = questions_list[index]
+        #self.CurrentClone.pop(index)
+        #return question
 
     def CheckNumQuestionAsked(self, check):
         return check == 3          
@@ -123,7 +133,6 @@ class Mainwindow(ctk.CTk):
         Password Strength: {message} (Rank: {rank}/5)
         """)
         self.Mainframe_passwordstrength.set(progress)
-
         if rank == 1:
             self.Mainframe_passwordstrength.configure(progress_color="red")
         elif rank == 2:
@@ -134,9 +143,40 @@ class Mainwindow(ctk.CTk):
             self.Mainframe_passwordstrength.configure(progress_color="lightgreen")
         elif rank == 5:
             self.Mainframe_passwordstrength.configure(progress_color="green")
+        self.check_btn.configure(state = "disabled")
+    
+    def RandPass_strengthdisplay(self):
+        password = self.Mainframe_passwordlabelRand.cget("text")
+        rank, message, progress = self.Pass_strengthcheck(password)
+        print(password)
+        self.Strength_label.configure(text=f"""
+        Password Strength: {message} (Rank: {rank}/5)
+        """)
+        self.Mainframe_passwordstrength.set(progress)
+        if rank == 1:
+            self.Mainframe_passwordstrength.configure(progress_color="red")
+        elif rank == 2:
+            self.Mainframe_passwordstrength.configure(progress_color="orange")
+        elif rank == 3:
+            self.Mainframe_passwordstrength.configure(progress_color="yellow")
+        elif rank == 4:
+            self.Mainframe_passwordstrength.configure(progress_color="lightgreen")
+        elif rank == 5:
+            self.Mainframe_passwordstrength.configure(progress_color="green")
+        self.check_btn.configure(state = "disabled")
 
     def reset(self):
-        pass
+        self.Mainframe_passwordlabelRand.configure(text="")
+        self.Slider.set(8)
+        self.lengthlabel.configure(text = "8")
+        self.checkboxnum.deselect()
+        self.checkboxsmb.deselect()
+        self.checkboxlow.deselect()
+        self.checkboxup.deselect()
+        self.copy_btn
+        self.Strength_label.configure(text = "")
+        self.Mainframe_passwordstrength.set(0)
+        self.Mainframe_passwordstrength.configure(progress_color="")
 
     def sliding(self, value):
         self.lengthlabel.configure(text=int(value))
@@ -191,8 +231,7 @@ class Mainwindow(ctk.CTk):
             result = self.PassgenerateAlgo(self.answers)
             self.MainFrame_QuestionLabel.configure(
                 text = result and "Here is your password" or "You have not entered any answers press restart to restart")
-            self.Mainframe_passwordlabel.configure(text = 
-                f"{result or ""}")
+            self.Mainframe_passwordlabel.configure(text = f"{result or ''}")
             self.check_btn.configure(state = "normal")
             self.copy_btn.configure(state = "normal")
             if not result:
@@ -205,6 +244,12 @@ class Mainwindow(ctk.CTk):
         self.clipboard_append(password)
         self.copy_btn.configure(state = "disabled")
 
+    def copyRand(self):
+        password = self.Mainframe_passwordlabelRand.cget("text")
+        self.clipboard_clear()
+        self.clipboard_append(password)
+        self.copy_btn.configure(state = "disabled")
+
     def skip(self):
         self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
         if self.GetRandQuesiton() == None:
@@ -212,7 +257,38 @@ class Mainwindow(ctk.CTk):
             self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
 
     def generate(self):
-        pass
+        character_list = []
+        
+        length = int(self.Slider.get())
+        
+        include_numbers = self.checkboxnum.get() == "on"
+        include_symbols = self.checkboxsmb.get() == "on"
+        include_lowercase = self.checkboxlow.get() == "on"
+        include_uppercase = self.checkboxup.get() == "on"
+
+        numbers = string.digits
+        symbols = string.punctuation
+        lowercase = string.ascii_lowercase
+        uppercase = string.ascii_uppercase
+
+        if include_numbers:
+            character_list.extend(numbers)
+        if include_symbols:
+            character_list.extend(symbols)
+        if include_lowercase:
+            character_list.extend(lowercase)
+        if include_uppercase:
+            character_list.extend(uppercase)
+
+        if not character_list:
+            self.Mainframe_passwordlabelRand.configure(text = "Please select at least one character type!")
+            return ""
+
+        password = ''.join(random.choice(character_list) for _ in range(length))
+
+        self.copy_btn.configure(state = "normal")
+        self.Mainframe_passwordlabelRand.configure(text=password)
+        self.check_btn.configure(state = "normal")
 
     def delete_current(self):
         for widget in self.MainFrameHolder.winfo_children():
@@ -227,134 +303,67 @@ class Mainwindow(ctk.CTk):
         self.minsize(700, 500)
         self.maxsize(700, 500)
 
-        self.MainFrame = ctk.CTkFrame(self, 
-                                     fg_color="black",
-                                     width=700,
-                                     height=500)
+        self.MainFrame = ctk.CTkFrame(self, fg_color="black",width=700,height=500)
         self.MainFrame.pack(fill="both", expand=True)
 
-        self.MainFrame_label = ctk.CTkLabel(self.MainFrame,
-                                    text="Password generator",
-                                    text_color="white",
-                                    fg_color="#01a6f8",
-                                    width=200,
-                                    height=25,
-                                    font=("Bold", 20),
-                                    corner_radius=5)
-        self.MainFrame_label.pack(padx=10,
-                                 pady=10)
+        self.MainFrame_label = ctk.CTkLabel(self.MainFrame,text="Password generator",text_color="white",fg_color="#01a6f8",width=200,height=25,font=("Bold", 20),corner_radius=5)
+        self.MainFrame_label.pack(padx=10,pady=10)
         
-        self.MainFrameHolder = ctk.CTkFrame(self.MainFrame,
-                                            width=600,
-                                            height=400)
+        self.MainFrameHolder = ctk.CTkFrame(self.MainFrame,width=600,height=400)
         self.MainFrameHolder.pack(padx=10, pady=10, fill="both", expand=True)
 
         self.loadMainFrame()
 
     def loadMainFrame(self):
         #Frames
-        self.MainMenu_sideFrame1 = ctk.CTkFrame(self.MainFrameHolder, 
-                                                fg_color="gray")
-        self.MainMenu_sideFrame1.pack(side="right", 
-                                padx=20, 
-                                pady=20)
+        self.MainMenu_sideFrame1 = ctk.CTkFrame(self.MainFrameHolder, fg_color="gray")
+        self.MainMenu_sideFrame1.pack(side="right", padx=20, pady=20)
 
-        self.MainMenu_sideFrame2 = ctk.CTkFrame(self.MainFrameHolder, 
-                                                fg_color="gray")
-        self.MainMenu_sideFrame2.pack(side="right", 
-                                padx=10, 
-                                pady=10)
+        self.MainMenu_sideFrame2 = ctk.CTkFrame(self.MainFrameHolder, fg_color="gray")
+        self.MainMenu_sideFrame2.pack(side="right", padx=10, pady=10)
 
-        self.MainMenu_Mainframe = ctk.CTkFrame(self.MainFrameHolder,
-                                               fg_color="gray",)
-        self.MainMenu_Mainframe.pack(side="left",
-                                padx=20,
-                                pady=20)
+        self.MainMenu_Mainframe = ctk.CTkFrame(self.MainFrameHolder,fg_color="gray",)
+        self.MainMenu_Mainframe.pack(side="left",padx=20,pady=20)
         
-        self.MainFrame_QuestionLabel = ctk.CTkLabel(self.MainMenu_Mainframe,
-                                                    text="Click start to start.",
-                                                    text_color="black",
-                                                    fg_color="white",
-                                                    width=500,
-                                                    height=50,
-                                                    corner_radius=5)
-        self.MainFrame_QuestionLabel.pack(padx=10,
-                                          pady=10)
+        self.MainFrame_QuestionLabel = ctk.CTkLabel(self.MainMenu_Mainframe,text="Click start to start.",text_color="black",fg_color="white",width=500,height=50,corner_radius=5)
+        self.MainFrame_QuestionLabel.pack(padx=10,pady=10)
         
         #Entry
-        self.answer_entry = ctk.CTkEntry(self.MainMenu_Mainframe,
-                                         placeholder_text="enter your response",
-                                         width= 500)
-        self.answer_entry.pack(pady=5,
-                               padx=5) 
+        self.answer_entry = ctk.CTkEntry(self.MainMenu_Mainframe,placeholder_text="enter your response",width= 500)
+        self.answer_entry.pack(pady=5,padx=5) 
 
-        self.Mainframe_passwordlabel = ctk.CTkLabel(self.MainMenu_Mainframe,
-                                                    text="",
-                                                    text_color="black",
-                                                    fg_color="white",
-                                                    width=500,
-                                                    height=30,
-                                                    corner_radius=5)
-        self.Mainframe_passwordlabel.pack(pady=10,
-                                          padx=10)
+        self.Mainframe_passwordlabel = ctk.CTkLabel(self.MainMenu_Mainframe,text="",text_color="black",fg_color="white",width=500,height=30,corner_radius=5)
+        self.Mainframe_passwordlabel.pack(pady=10,padx=10)
         
 
         self.Strength_label = ctk.CTkLabel(self.MainMenu_Mainframe, text="")
         self.Strength_label.pack(pady=10)
 
-        self.Mainframe_passwordstrength = ctk.CTkProgressBar(
-                                            self.MainMenu_Mainframe,)
+        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_Mainframe,)
         self.Mainframe_passwordstrength.set(0)
-        self.Mainframe_passwordstrength.pack(pady=10,
-                                             padx=10)
+        self.Mainframe_passwordstrength.pack(pady=10,padx=10)
                                             
         #buttons
-        self.randompass_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
-                                            text="random password", 
-                                            command=self.randompass)
-        self.randompass_btn.pack(pady=10, 
-                                 padx=10)
+        self.randompass_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="random password", command=self.randompass)
+        self.randompass_btn.pack(pady=10, padx=10)
 
-        self.start_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
-                                       text="start", 
-                                       command=self.start)
-        self.start_btn.pack(pady=10, 
-                            padx=10)
+        self.start_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="start", command=self.start)
+        self.start_btn.pack(pady=10, padx=10)
         
-        self.restart_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
-                                       text="Restart", 
-                                       command=self.restart)
-        self.restart_btn.pack(pady=10, 
-                            padx=10)
+        self.restart_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="Restart",command=self.restart)
+        self.restart_btn.pack(pady=10, padx=10)
 
-        self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
-                                      text="quit",
-                                      hover_color="brown2", 
-                                      command=self.quit)
-        self.quit_btn.pack(pady=10, 
-                           padx=10)
+        self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="quit",hover_color="brown2", command=self.quit)
+        self.quit_btn.pack(pady=10, padx=10)
 
-        self.tutorial_btn = ctk.CTkButton(self.MainMenu_sideFrame1, 
-                                          text="tutorial", 
-                                          command=self.tutorial)
-        self.tutorial_btn.pack(pady=10, 
-                               padx=10)
+        self.tutorial_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="tutorial", command=self.tutorial)
+        self.tutorial_btn.pack(pady=10, padx=10)
 
-        self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame2, 
-                                      text="Copy",
-                                      state="disabled", 
-                                      command=self.copy,
-                                      width=10)
-        self.copy_btn.pack(pady=5,
-                           padx=5)
+        self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame2, text="Copy",state="disabled", command=self.copy,width=10)
+        self.copy_btn.pack(pady=5,padx=5)
 
-        self.enter_btn = ctk.CTkButton(self.MainMenu_sideFrame2, 
-                                       text="Enter",
-                                       command=self.enter,
-                                       state= "disabled",
-                                       width=10)
-        self.enter_btn.pack(pady=5, 
-                            padx=5)
+        self.enter_btn = ctk.CTkButton(self.MainMenu_sideFrame2, text="Enter",command=self.enter,state= "disabled",width=10)
+        self.enter_btn.pack(pady=5, padx=5)
 
         self.skip_btn = ctk.CTkButton(self.MainMenu_sideFrame2, text="Skip", command=self.skip, state= "disabled", width=10)
         self.skip_btn.pack(pady=5, padx=5)
@@ -365,156 +374,96 @@ class Mainwindow(ctk.CTk):
         
 
     def loadRandPass(self):
-        self.MainMenu_sideFrame1RAND = ctk.CTkFrame(self.MainFrameHolder, 
-                                                fg_color="light gray")
+
+        self.MainMenu_sideFrame1RAND = ctk.CTkFrame(self.MainFrameHolder, fg_color="light gray")
         self.MainMenu_sideFrame1RAND.pack(side="right", padx=10, pady=10)
 
-
-        self.MainMenu_Mainframe = ctk.CTkFrame(self.MainFrameHolder,
-                                               fg_color="light grey",)
+        self.MainMenu_Mainframe = ctk.CTkFrame(self.MainFrameHolder,fg_color="light grey",)
         self.MainMenu_Mainframe.pack(side="left", padx=10, pady=10)
 
-        self.MainMenu_MainframeFir = ctk.CTkFrame(self.MainMenu_Mainframe,
-                                               fg_color="gray",)
+        self.MainMenu_MainframeFir = ctk.CTkFrame(self.MainMenu_Mainframe,fg_color="gray",)
         self.MainMenu_MainframeFir.pack(padx=10, pady=10)
         
-        self.MainMenu_MainframeSEC = ctk.CTkFrame(self.MainMenu_Mainframe,
-                                                  fg_color="gray")
+        self.MainMenu_MainframeSEC = ctk.CTkFrame(self.MainMenu_Mainframe,fg_color="gray")
         self.MainMenu_MainframeSEC.pack(padx=10, pady=10)
 
-        self.SECframeSector1 =ctk.CTkFrame(self.MainMenu_MainframeSEC,
-                                           fg_color="gray")
+        self.SECframeSector1 =ctk.CTkFrame(self.MainMenu_MainframeSEC,fg_color="gray")
         self.SECframeSector1.pack(padx=10, pady=10)
 
-        self.SECframeSector2 =ctk.CTkFrame(self.MainMenu_MainframeSEC,
-                                           fg_color="gray")
+        self.SECframeSector2 =ctk.CTkFrame(self.MainMenu_MainframeSEC,fg_color="gray")
         self.SECframeSector2.pack(padx=10, pady=10)
 
-        self.Mainframe_passwordlabel = ctk.CTkLabel(self.MainMenu_MainframeFir,
-                                                    text="password",
-                                                    text_color="black",
-                                                    fg_color="white",
-                                                    width=500,
-                                                    height=30,
-                                                    corner_radius=5)
-        self.Mainframe_passwordlabel.pack(pady=10, padx=10)
+        self.Mainframe_passwordlabelRand = ctk.CTkLabel(self.MainMenu_MainframeFir,text="password",text_color="black",fg_color="white",width=500,height=30,corner_radius=5)
+        self.Mainframe_passwordlabelRand.pack(pady=10, padx=10)
         
-        self.Mainframe_passwordstrength = ctk.CTkProgressBar(
-                                            self.MainMenu_MainframeFir)
+        self.Strength_label = ctk.CTkLabel(self.MainMenu_MainframeFir, text="")
+        self.Strength_label.pack(pady=10)
+
+        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_MainframeFir)
+        self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.pack(pady=10, padx=10)
 
-        self.passwordlength = ctk.CTkLabel(self.SECframeSector1,
-                                           text=("Password Length"))
+        self.passwordlength = ctk.CTkLabel(self.SECframeSector1,text=("Password Length"))
         self.passwordlength.pack()
 
-        self.Slider = ctk.CTkSlider(self.SECframeSector1, 
-                                    from_=0, 
-                                    to=50,
-                                    command=self.sliding,
-                                    height = 20)
+        self.Slider = ctk.CTkSlider(self.SECframeSector1, from_=0, to=50,command=self.sliding,height = 20)
         self.Slider.pack(side = "right")
 
         self.Slider.set(8)
                                             
         #buttons
 
-        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
-                                       text="Generate", 
-                                       command=self.generate)
+        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Generate", command=self.generate)
         self.generate_btn.pack(pady=10,padx=10)
 
-        self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
-                                      text="Copy", 
-                                      command=self.copy)
+        self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Copy", command=self.copyRand, state = "disabled")
         self.copy_btn.pack(pady=10,padx=10)
 
-        self.reset_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
-                                      text="Reset", 
-                                      command=self.reset)
+        self.check_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Check", command=self.RandPass_strengthdisplay, state = "disabled")
+        self.check_btn.pack(pady=5,padx=5)
+
+        self.reset_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Reset", command=self.reset)
         self.reset_btn.pack(pady=10,padx=10)
 
-        self.tutorial_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
-                                          text="tutorial", 
-                                          command=self.tutorial)
+        self.tutorial_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="tutorial", command=self.tutorial)
         self.tutorial_btn.pack(pady=10,padx=10)
 
-        self.returnbtn = ctk.CTkButton(self.MainMenu_sideFrame1RAND,
-                                       text="return",
-                                       command=self.Return)
+        self.returnbtn = ctk.CTkButton(self.MainMenu_sideFrame1RAND,text="return",command=self.Return)
         self.returnbtn.pack(padx=10, pady=10)
 
-        self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, 
-                                      text="quit", 
-                                      hover_color="brown2",
-                                      command=self.quit)
+        self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="quit", hover_color="brown2",command=self.quit)
         self.quit_btn.pack(pady=10,padx=10)
 
-        self.lengthlabel = ctk.CTkLabel(self.SECframeSector1,
-                                        text=self.Slider.get(),
-                                        fg_color="light gray",
-                                        text_color= "black",
-                                        corner_radius= 5)
+        self.lengthlabel = ctk.CTkLabel(self.SECframeSector1,text=self.Slider.get(),fg_color="light gray",text_color= "black",corner_radius= 5)
         self.lengthlabel.pack(side ="right")
 
         checkSymbol = ctk.StringVar(value="off")
-        self.checkboxsmb = ctk.CTkCheckBox(self.SECframeSector2,
-                                        text="Symbols",
-                                        variable=checkSymbol,
-                                        onvalue="on",
-                                        offvalue="off")
+        self.checkboxsmb = ctk.CTkCheckBox(self.SECframeSector2,text="Symbols",variable=checkSymbol,onvalue="on",offvalue="off")
         self.checkboxsmb.pack(pady=5,padx=5)
 
         checkNumber = ctk.StringVar(value="off")
-        self.checkboxnum = ctk.CTkCheckBox(self.SECframeSector2,
-                                        text="Numbers",
-                                        variable=checkNumber,
-                                        onvalue="on",
-                                        offvalue="off")
+        self.checkboxnum = ctk.CTkCheckBox(self.SECframeSector2,text="Numbers",variable=checkNumber,onvalue="on",offvalue="off")
         self.checkboxnum.pack(pady=5,padx=5)
 
-        checkLetters = ctk.StringVar(value="off")
-        self.checkboxlet = ctk.CTkCheckBox(self.SECframeSector2,
-                                        text="Letters",
-                                        variable=checkLetters,
-                                        onvalue="on",
-                                        offvalue="off")
-        self.checkboxlet.pack(pady=5,padx=5)
-
         checkUp = ctk.StringVar(value="off")
-        self.checkboxup = ctk.CTkCheckBox(self.SECframeSector2,
-                                        text="Uppercase",
-                                        variable=checkUp,
-                                        onvalue="on",
-                                        offvalue="off")
+        self.checkboxup = ctk.CTkCheckBox(self.SECframeSector2,text="Uppercase",variable=checkUp,onvalue="on",offvalue="off")
         self.checkboxup.pack(pady=5,padx=5)
 
         checkLow = ctk.StringVar(value="off")
-        self.checkboxlow = ctk.CTkCheckBox(self.SECframeSector2,
-                                        text="Lowercase",
-                                        variable=checkLow,
-                                        onvalue="on",
-                                        offvalue="off")
+        self.checkboxlow = ctk.CTkCheckBox(self.SECframeSector2,text="Lowercase",variable=checkLow,onvalue="on",offvalue="off")
         self.checkboxlow.pack(pady=5,padx=5)
 
     def loadtutorial(self):
-        self.tutorialFrame = ctk.CTkFrame(self.MainFrameHolder,
-                                          fg_color="gray")
+        self.tutorialFrame = ctk.CTkFrame(self.MainFrameHolder,fg_color="gray")
         self.tutorialFrame.pack(padx=10, pady=10, fill="both", expand=True)
 
-        self.tutorialFrameSEC = ctk.CTkFrame(self.MainFrameHolder,
-                                             fg_color="transparent")
+        self.tutorialFrameSEC = ctk.CTkFrame(self.MainFrameHolder,fg_color="transparent")
         self.tutorialFrameSEC.pack(side="right",padx=10, pady=10)
 
-        self.returnbtn = ctk.CTkButton(self.tutorialFrameSEC,
-                                       text="return",
-                                       command=self.Return,
-                                       width=30,
-                                       height=30)
+        self.returnbtn = ctk.CTkButton(self.tutorialFrameSEC,text="return",command=self.Return,width=30,height=30)
         self.returnbtn.pack(side="right",padx=10, pady=10)
         
-        self.textbox = ctk.CTkTextbox(self.tutorialFrame,
-                                      fg_color="gray"
-                                   )
+        self.textbox = ctk.CTkTextbox(self.tutorialFrame,fg_color="gray")
         self.textbox.pack(padx=10, pady=10, fill="both", expand=True)
 
         self.textbox.insert("0.0", "Tutorial\n\n" + 
