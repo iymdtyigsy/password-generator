@@ -30,6 +30,7 @@ class Mainwindow(ctk.CTk):
     CurrentClone = None
     def GetStartQuestions(self):
         self.CurrentClone = copy.deepcopy(self.questionlist)
+        print(self.CurrentClone)
         return self.CurrentClone
 
     def ResetStartQuestions(self):
