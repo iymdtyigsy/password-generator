@@ -30,7 +30,6 @@ class Mainwindow(ctk.CTk):
     CurrentClone = None
     def GetStartQuestions(self):
         self.CurrentClone = copy.deepcopy(self.questionlist)
-        print(self.CurrentClone)
         return self.CurrentClone
 
     def ResetStartQuestions(self):
@@ -39,7 +38,6 @@ class Mainwindow(ctk.CTk):
     def GetRandQuesiton(self):
         questions_list = self.GetStartQuestions()
 
-        #Ensure there's more than one item
         if len(questions_list) > 1:
             index = random.randrange(1, len(questions_list))
         else:
@@ -129,7 +127,6 @@ class Mainwindow(ctk.CTk):
     def Pass_strengthdisplay(self):
         password = self.Mainframe_passwordlabel.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
-        print(password)
         self.Strength_label.configure(text=f"""
         Password Strength: {message} (Rank: {rank}/5)
         """)
@@ -149,7 +146,6 @@ class Mainwindow(ctk.CTk):
     def RandPass_strengthdisplay(self):
         password = self.Mainframe_passwordlabelRand.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
-        print(password)
         self.Strength_label.configure(text=f"""
         Password Strength: {message} (Rank: {rank}/5)
         """)
@@ -200,6 +196,7 @@ class Mainwindow(ctk.CTk):
         self.skip_btn.configure(state = "disabled")
         self.enter_btn.configure(state = "disabled")
         self.check_btn.configure(state = "disabled")
+        self.restart_btn.configure(state = "disabled")
         self.Strength_label.configure(text = "")
         self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.configure(progress_color="")
@@ -225,13 +222,12 @@ class Mainwindow(ctk.CTk):
         self.answer_entry.delete(0, tk.END)
         self.MainFrame_QuestionLabel.configure(text=self.GetRandQuesiton())
         self.NumberOfQuestionAsked += 1
-        print(self.answers)
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
         if CheckNumQuestion:
             result = self.PassgenerateAlgo(self.answers)
-            self.MainFrame_QuestionLabel.configure(
-                text = result and "Here is your password" or "You have not entered any answers press restart to restart")
+            self.MainFrame_QuestionLabel.configure(text = result and "Here is your password" or "You have not entered any answers press restart to restart")
+            self.restart_btn.configure(state = "normal")
             self.Mainframe_passwordlabel.configure(text = f"{result or ''}")
             self.check_btn.configure(state = "normal")
             self.copy_btn.configure(state = "normal")
@@ -351,7 +347,7 @@ class Mainwindow(ctk.CTk):
         self.start_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="start", command=self.start)
         self.start_btn.pack(pady=10, padx=10)
         
-        self.restart_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="Restart",command=self.restart)
+        self.restart_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="Restart",command=self.restart, state= "disabled")
         self.restart_btn.pack(pady=10, padx=10)
 
         self.quit_btn = ctk.CTkButton(self.MainMenu_sideFrame1, text="quit",hover_color="brown2", command=self.quit)
@@ -464,12 +460,31 @@ class Mainwindow(ctk.CTk):
         self.returnbtn = ctk.CTkButton(self.tutorialFrameSEC,text="return",command=self.Return,width=30,height=30)
         self.returnbtn.pack(side="right",padx=10, pady=10)
         
-        self.textbox = ctk.CTkTextbox(self.tutorialFrame,fg_color="gray")
+        self.textbox = ctk.CTkTextbox(self.tutorialFrame,fg_color="gray", font=("Helvetica", 14))
         self.textbox.pack(padx=10, pady=10, fill="both", expand=True)
 
         self.textbox.insert("0.0", "Tutorial\n\n" + 
         """
-        This is tutorial
+        1.Main Menu 
+          At Main Menu which is the password generator which generates password from the 
+          user answering 3 questions. first you press the Start button on the left hand side 
+          which is labeled Start, then the program would display question on the big white label, 
+          you enter your answer in the entry box which has "enter your response" on it, 
+          then you press the enter button on your left hand side which has the enter 
+          labeled on it (answerd 1st time), a new question will appear on the white label and you 
+          then enter your answers again (answerd 2nd time) as the process before, for totaly three 
+          times afterwards including the two times before. 
+          
+          so the next time you answers the question will be the third time. 
+          the program will then display the password in the white label below the entry box. 
+          you can copy the password by pressing copy button, check the password strength 
+          by pressing the check button. when the check button is pressed a message 
+          describing the strength of the password will display under the white label 
+          with the password in it. the colour of the progess bar repersents differnt
+          strength of the password (red = very weak, orange = weak, yellow = fair, lime green 
+          = strong, green = very strong) and the progess of the bar is increase as the strength 
+          of the bar is increased.
+
         """)
         self.textbox.configure(state = ctk.DISABLED)
 
