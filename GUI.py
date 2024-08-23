@@ -55,11 +55,11 @@ class Mainwindow(ctk.CTk):
     def CheckNumQuestionAsked(self, check):
         return check == 3          
     
-    def PassgenerateAlgo(self, answer):
+    def password_generate_by_answer(self, answer):
         answerslist = [str(items).replace(' ',"") for items in answer]
         random.shuffle(answerslist)
         between = ''
-        password = between.join(answerslist)+(str(random.randrange(1, 100)))
+        password = between.join(answerslist)#+(str(random.randrange(0, 100)))
         self.answers.clear()
         if not answerslist:
             self.check_btn.configure(state = "disabled")
@@ -118,6 +118,9 @@ class Mainwindow(ctk.CTk):
         password = self.Mainframe_passwordlabel.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
         self.Strength_label.configure(text=f"""
+        Password Strength: {message} (Rank: {rank}/5)
+        """)
+        print(f"""
         Password Strength: {message} (Rank: {rank}/5)
         """)
         self.Mainframe_passwordstrength.set(progress)
@@ -215,14 +218,14 @@ class Mainwindow(ctk.CTk):
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
         if CheckNumQuestion:
-            result = self.PassgenerateAlgo(self.answers)
+            result = self.password_generate_by_answer(self.answers)
             self.MainFrame_QuestionLabel.configure(text = result and "Here is your password" or "You have not entered any answers press restart to restart")
             self.restart_btn.configure(state = "normal")
             self.Mainframe_passwordlabel.configure(text = f"{result or ''}")
             self.check_btn.configure(state = "normal")
             self.copy_btn.configure(state = "normal")
             if not result:
-                self.check_btn.configure(state = "disabled")
+                self.check_btn.configure(state = "normal")
                 self.copy_btn.configure(state = "disabled")
             
     def copy(self):
