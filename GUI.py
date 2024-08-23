@@ -85,36 +85,26 @@ class Mainwindow(ctk.CTk):
     def Pass_strengthcheck(self, password):
 
         length = len(password)
-            
+  
         with open("common.txt","r") as f:
             common_password = f.read().splitlines()
-
         score = 0
-
         if length < 8:
             return 1, self.split_string("Very Weak: Password must be at least 8 characters long.", 20), 0.2
-        
         elif length >= 8 and length < 12:
             score += 1
-
         elif length >= 12:
             score += 2
-
         if password in common_password:
             return 1, self.split_string("Very Weak: This password is too common. Choose a more unique password.", 20), 0.2
-
         if re.search(r"[A-Z]", password):
             score += 1
-
         if re.search(r"[a-z]", password):
             score += 1
-
         if re.search(r"\d", password):
             score += 1
-
         if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
             score += 1
-
         if score == 1:
             return 2, "Weak", 0.4
         elif score == 2:
@@ -483,7 +473,7 @@ class Mainwindow(ctk.CTk):
           with the password in it. the colour of the progess bar repersents differnt
           strength of the password (red = very weak, orange = weak, yellow = fair, lime green 
           = strong, green = very strong) and the progess of the bar is increase as the strength 
-          of the bar is increased.
+          of the bar is increased. 
 
         """)
         self.textbox.configure(state = ctk.DISABLED)
