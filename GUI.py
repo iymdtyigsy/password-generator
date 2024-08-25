@@ -205,7 +205,8 @@ class Mainwindow(ctk.CTk):
         self.checkboxsmb.deselect()
         self.checkboxlow.deselect()
         self.checkboxup.deselect()
-        self.copy_btn
+        self.copy_btn.configure(state = "disabled")
+        self.check_btn.configure(state = "disabled")
         self.Strength_label.configure(text = "")
         self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.configure(progress_color="")
@@ -524,26 +525,51 @@ class Mainwindow(ctk.CTk):
 
         self.textbox.insert("0.0", "Tutorial\n\n" + 
         """
-        1.Main Menu 
-          At Main Menu which is the password generator which generates password from the 
-          user answering 3 questions. first you press the Start button on the left hand side 
-          which is labeled Start, then the program would display question on the big white label, 
-          you enter your answer in the entry box which has "enter your response" on it, 
-          then you press the enter button on your left hand side which has the enter 
-          labeled on it (answerd 1st time), a new question will appear on the white label and you 
-          then enter your answers again (answerd 2nd time) as the process before, for totaly three 
-          times afterwards including the two times before. 
-          
-          so the next time you answers the question will be the third time. 
-          the program will then display the password in the white label below the entry box. 
-          you can copy the password by pressing copy button, check the password strength 
-          by pressing the check button. when the check button is pressed a message 
-          describing the strength of the password will display under the white label 
-          with the password in it. the colour of the progess bar repersents differnt
-          strength of the password (red = very weak, orange = weak, yellow = fair, lime green 
-          = strong, green = very strong) and the progess of the bar is increase as the strength 
-          of the bar is increased. 
+        1. Main Menu At Main Menu which is the password generator which generates passwords 
+        from the user answering 3 questions. 
+        first, you press the Start button on the left-hand side which is labelled Start, 
+        and then the program displays the question on the big white label, 
+        you enter your answer in the entry box which has "enter your response" on it, 
+        then you press the enter button on 
+        your left-hand side which has the enter labelled on it (answered 1st time), 
+        a new question will appear on the white label and 
+        you then enter your answers again (answered 2nd time) as the process before, 
+        for totally three times afterwards including the two times. 
+        so the next time you answer the question will be the third time. 
+        the program will then display the password in the white label below the entry box.
 
+        you can copy the password by pressing the copy button, 
+        and check the password strength by pressing the check button. 
+        when the check button is pressed a message describing the strength of 
+        the password will display under the white label with the password in it. 
+        the colour of the progress bar represents different strengths of the password 
+        (red = very weak, orange = weak, yellow = fair, lime green = strong, green = very strong) 
+        and the progress of the bar increases as the strength of the bar is increased.
+        you can also skip questions by pressing the skip button on your left 
+        press restart to restart the process of answering questions to generate a password. 
+        tutorial buttons send you to the tutorial menu here. return button returns to the main menu. 
+        quit button ends the program. 
+
+        2. random password - press random password to go to the random password menu 
+        at random password you can generate a password by 
+        selecting the types of characters you want in your password 
+        by ticking the boxes and selecting the length by sliding the slider. 
+        press generate after you have selected your options for the characters, 
+        you want in the password and after you have selected your length from the slider. 
+        copy button copies the password generated. check button checks the password strength. 
+        reset button resets to the default setting for 
+        the options of type character and the password length. 
+        tutorial buttons send you to the tutorial menu here. 
+        return button returns to the main menu. 
+        quit button ends the program. 
+
+        3. Grey-out buttons are disabled 
+        which means you can't press them 
+        sometimes buttons are not disabled properly 
+        so keep it in mind and 
+        you can reset or restart to redo the password-generating process for the best functionality. 
+        Usually the copy and the check button that is not disabled properly
+   
         """)
         self.textbox.configure(state = ctk.DISABLED)
 
