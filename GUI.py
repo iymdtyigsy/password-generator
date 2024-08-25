@@ -89,14 +89,32 @@ class Mainwindow(ctk.CTk):
         with open("common.txt","r") as f:
             common_password = f.read().splitlines()
         score = 0
+        if len(set(password)) == 1:  
+                return 1, self.split_string(f"Very Weak: Password consist of the same character repeated. (password length:{str(length)}) ", 25), 0.2
         if length < 8:
-            return 1, self.split_string("Very Weak: Password must be at least 8 characters long.", 20), 0.2
-        elif length >= 8 and length < 12:
+            return 1, self.split_string(f"Very Weak: Password needs to be at least 8 characters long. (password length:{str(length)})", 25), 0.2
+        elif length >= 8 and length < 14:
             score += 1
-        elif length >= 12:
+        elif length >= 25 and length <50:
+            score += 2
+            if re.search(r"[A-Z]", password):
+                score += 1
+            if re.search(r"[a-z]", password):
+                score += 1
+            if re.search(r"\d", password):
+                score += 1
+            if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+                score += 1
+            if score == 3:
+                return 4, self.split_string(f"Good: this is a long password are you sure you can remember it ? (password length:{str(length)})", 25), 0.8
+            if score >= 4:
+                return 5, self.split_string(f"Strong: this is a long password are you sure you can remember it? (password length:{str(length)})", 25), 1.0
+        elif length > 50:
+            return 0, self.split_string(f"Password is too long for the program to check. (password length:{str(length)})", 25), 0
+        elif length >= 14:
             score += 2
         if password in common_password:
-            return 1, self.split_string("Very Weak: This password is too common. Choose a more unique password.", 20), 0.2
+            return 1, self.split_string(f"Very Weak: This password is too common. Choose a more unique password. (password length:{str(length)})", 25), 0.2
         if re.search(r"[A-Z]", password):
             score += 1
         if re.search(r"[a-z]", password):
@@ -106,14 +124,14 @@ class Mainwindow(ctk.CTk):
         if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
             score += 1
         if score == 1:
-            return 2, "Weak", 0.4
+            return 2, f"Weak (password length:{str(length)})", 0.4
         elif score == 2:
-            return 3, "Fair", 0.6
+            return 3, f"Fair (password length:{str(length)})", 0.6
         elif score == 3:
-            return 4, "Good", 0.8
+            return 4, f"Good (password length:{str(length)})", 0.8
         elif score >= 4:
-            return 5, "Strong", 1.0
-    
+            return 5, f"Strong (password length:{str(length)})", 1.0
+        
     def Pass_strengthdisplay(self):
         password = self.Mainframe_passwordlabel.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
@@ -329,7 +347,7 @@ class Mainwindow(ctk.CTk):
         self.Strength_label = ctk.CTkLabel(self.MainMenu_Mainframe, text="")
         self.Strength_label.pack(pady=10)
 
-        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_Mainframe,)
+        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_Mainframe, progress_color="")
         self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.pack(pady=10,padx=10)
                                             
