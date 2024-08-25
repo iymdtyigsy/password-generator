@@ -67,6 +67,7 @@ class Mainwindow(ctk.CTk):
         if not answerslist:
             self.check_btn.configure(state = "disabled")
             return None
+        
         #return password
         for answer in answerslist:
             if isinstance(answer, str):
