@@ -56,7 +56,7 @@ class Mainwindow(ctk.CTk):
         return check == 3          
     
     def password_generate_by_answer(self, answer):
-        answerslist = [str(items).replace(' ',"") for items in answer]
+        answerslist = [str(items) for items in answer]#.replace(' ',"")
         random.shuffle(answerslist)
         between = ''
         password = between.join(answerslist)#+(str(random.randrange(0, 100)))
@@ -89,13 +89,21 @@ class Mainwindow(ctk.CTk):
         with open("common.txt","r") as f:
             common_password = f.read().splitlines()
         score = 0
-        if len(set(password)) == 1:  
-                return 1, self.split_string(f"Very Weak: Password consist of the same character repeated. (password length:{str(length)}) ", 25), 0.2
-        if length < 8:
+        if any(ord(char) > 127 or not char.isprintable() for char in password):
+            return 0, self.split_string(f"password contains unicode or non-printable characters. can't be checked (password length:{str(length)})", 25), 0
+        elif len(password) == 0:
+            return 0, self.split_string(f"This is an empty password. can't be checked (password length:{str(length)})", 25), 0 
+        elif ' ' in password:
+            return 0, self.split_string(f"Password contains spaces. can't be checked (password length:{str(length)})", 25), 0
+        elif len(set(password)) == 1:  
+            return 1, self.split_string(f"Very Weak: Password consist of the same character repeated. (password length:{str(length)}) ", 25), 0.2
+        elif length < 8:
             return 1, self.split_string(f"Very Weak: Password needs to be at least 8 characters long. (password length:{str(length)})", 25), 0.2
-        elif length >= 8 and length < 14:
+        elif length >= 8 and length < 15:
             score += 1
-        elif length >= 25 and length <50:
+        elif length >= 15 and length <25:
+            score += 2
+        elif length >= 25 and length <=50:
             score += 2
             if re.search(r"[A-Z]", password):
                 score += 1
@@ -111,8 +119,6 @@ class Mainwindow(ctk.CTk):
                 return 5, self.split_string(f"Strong: this is a long password are you sure you can remember it? (password length:{str(length)})", 25), 1.0
         elif length > 50:
             return 0, self.split_string(f"Password is too long for the program to check. (password length:{str(length)})", 25), 0
-        elif length >= 14:
-            score += 2
         if password in common_password:
             return 1, self.split_string(f"Very Weak: This password is too common. Choose a more unique password. (password length:{str(length)})", 25), 0.2
         if re.search(r"[A-Z]", password):
@@ -264,7 +270,7 @@ class Mainwindow(ctk.CTk):
             self.ResetStartQuestions()
             self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
 
-    def generate(self):
+    def random_generate(self):
         character_list = []
         
         length = int(self.Slider.get())
@@ -407,21 +413,21 @@ class Mainwindow(ctk.CTk):
         self.Strength_label = ctk.CTkLabel(self.MainMenu_MainframeFir, text="")
         self.Strength_label.pack(pady=10)
 
-        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_MainframeFir)
+        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_MainframeFir, progress_color="")
         self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.pack(pady=10, padx=10)
 
         self.passwordlength = ctk.CTkLabel(self.SECframeSector1,text=("Password Length"))
         self.passwordlength.pack()
 
-        self.Slider = ctk.CTkSlider(self.SECframeSector1, from_=0, to=50,command=self.sliding,height = 20)
+        self.Slider = ctk.CTkSlider(self.SECframeSector1, from_=0, to=50,command=self.sliding,height = 20,)
         self.Slider.pack(side = "right")
 
         self.Slider.set(8)
                                             
         #buttons
 
-        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Generate", command=self.generate)
+        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Generate", command=self.random_generate)
         self.generate_btn.pack(pady=10,padx=10)
 
         self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Copy", command=self.copyRand, state = "disabled")
