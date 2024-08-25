@@ -78,7 +78,7 @@ class Mainwindow(ctk.CTk):
         if has_space:
             return "You answered space in your answer"
         elif has_empty:
-            return "You didn’t answer a question"
+            return "You didn't answer a question"
         else:
             # Generate a password based on the answers
             password = between.join(answerslist)+(str(random.randrange(0, 100)))
@@ -259,7 +259,7 @@ class Mainwindow(ctk.CTk):
         self.NumberOfQuestionAsked += 1
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
-
+        
         if CheckNumQuestion:
             result = self.password_generate_by_answer(self.answers)
             self.MainFrame_QuestionLabel.configure(text = result and "Here is your password" or "You have not entered any answers press restart to restart")
