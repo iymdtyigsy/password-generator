@@ -1,14 +1,17 @@
 import tkinter as tk
-import customtkinter as ctk
 import random
 import copy
 import string
 import re
+
+import customtkinter as ctk
+
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue") 
 
 class Mainwindow(ctk.CTk):
 
+    #window for the password generator program.
     questionlist = [
     "What's your favorite animal?",
     "Which celebrity would you choose for your best friend?",
@@ -23,38 +26,43 @@ class Mainwindow(ctk.CTk):
     "What was your favorite subject in school?",
     "What do you enjoy doing in your free time?",
     "What is your hobby or one of your hobbies?",
+    "What is your favorite book?",
+    "What type of music do you enjoy the most?",
+    "If you could travel anywhere in the world, where would you go?",
+    "What’s your favorite movie genre?",
+    "What’s a hobby you’d like to pick up?",
+    "If you could have any superpower, what would it be?",
+    "What would you do if you won the lottery?",
+    "If you could meet any historical figure, who would it be?",
+    "What would you choose if you could live in any time period?",
+    "If you could switch lives with someone for a day, who would it be?"
     ]
     answers = []
     NumberOfQuestionAsked = 0
 
     CurrentClone = None
+    #getting deepcopy of the questionlist
     def GetStartQuestions(self):
         self.CurrentClone = copy.deepcopy(self.questionlist)
         return self.CurrentClone
 
+    #reseting the question to ask
     def ResetStartQuestions(self):
         self.CurrentClone = None
 
+    #getting the random chosen question to ask 
     def GetRandQuesiton(self):
         questions_list = self.GetStartQuestions()
-
-        if len(questions_list) > 1:
-            index = random.randrange(1, len(questions_list))
-        else:
-            index = 0
-
+        index = random.randint(0, len(questions_list)-1)
         question = questions_list[index]
         self.CurrentClone.pop(index)
         return question
-
-        #index = random.randint(0, len(questions_list)-1)
-        #question = questions_list[index]
-        #self.CurrentClone.pop(index)
-        #return question
-
+    
+    #checking the question is answered three times
     def CheckNumQuestionAsked(self, check):
         return check == 3          
     
+    #generating the password from answers
     def password_generate_by_answer(self, answer):
         has_space = False
         has_empty = False
@@ -62,7 +70,7 @@ class Mainwindow(ctk.CTk):
         print(answerslist)
         random.shuffle(answerslist)
         print(answerslist)
-        between = ''
+        between = "-"
         self.answers.clear()
         if not answerslist:
             self.check_btn.configure(state = "disabled")
@@ -82,9 +90,10 @@ class Mainwindow(ctk.CTk):
             return "You didn't answer a question"
         else:
             # Generate a password based on the answers
-            password = between.join(answerslist)+(str(random.randrange(0, 100)))
+            password = between.join(answerslist)+"-"+(str(random.randrange(0, 100)))
             return password
-    
+        
+    # spliting the strings so it fits in the label
     def split_string(self, string: str, max_characters: int):
         lines = []
         current_line = ""
@@ -101,6 +110,7 @@ class Mainwindow(ctk.CTk):
 
         return '\n'.join(lines)
     
+    #checking the strength of the password 
     def Pass_strengthcheck(self, password):
 
         length = len(password)
@@ -108,20 +118,28 @@ class Mainwindow(ctk.CTk):
         with open("common.txt","r") as f:
             common_password = f.read().splitlines()
         score = 0
+        #check if there is a unicode or non printable character in the password
         if any(ord(char) > 127 or not char.isprintable() for char in password):
             return 0, self.split_string(f"password contains unicode or non-printable characters. can't be checked (password length:{str(length)})", 25), 0
+        #check if the password is empty
         elif len(password) == 0:
             return 0, self.split_string(f"This is an empty password. can't be checked (password length:{str(length)})", 25), 0 
+        #check if the password contains space or spaces
         elif ' ' in password:
             return 0, self.split_string(f"Password contains spaces. can't be checked (password length:{str(length)})", 25), 0
+        #check if the password consist of the same characters repeated
         elif len(set(password)) == 1:  
             return 1, self.split_string(f"Very Weak: Password consist of the same character repeated. (password length:{str(length)}) ", 25), 0.2
+        #check if the password is less than 8 characters
         elif length < 8:
             return 1, self.split_string(f"Very Weak: Password needs to be at least 8 characters long. (password length:{str(length)})", 25), 0.2
+
         elif length >= 8 and length < 15:
             score += 1
+
         elif length >= 15 and length <25:
             score += 2
+        #seprate checker to check for very long passwords
         elif length >= 25 and length <=50:
             score += 2
             if re.search(r"[A-Z]", password):
@@ -136,6 +154,7 @@ class Mainwindow(ctk.CTk):
                 return 4, self.split_string(f"Good: this is a long password are you sure you can remember it ? (password length:{str(length)})", 25), 0.8
             if score >= 4:
                 return 5, self.split_string(f"Strong: this is a long password are you sure you can remember it? (password length:{str(length)})", 25), 1.0
+        #check if the password is way too long    
         elif length > 50:
             return 0, self.split_string(f"Password is too long for the program to check. (password length:{str(length)})", 25), 0
         if password in common_password:
@@ -156,7 +175,7 @@ class Mainwindow(ctk.CTk):
             return 4, f"Good (password length:{str(length)})", 0.8
         elif score >= 4:
             return 5, f"Strong (password length:{str(length)})", 1.0
-        
+        #displaying the strength in label and progess bar
     def Pass_strengthdisplay(self):
         password = self.Mainframe_passwordlabel.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
@@ -178,7 +197,7 @@ class Mainwindow(ctk.CTk):
         elif rank == 5:
             self.Mainframe_passwordstrength.configure(progress_color="green")
         self.check_btn.configure(state = "disabled")
-    
+    #displaying the strength in label and progess bar in random password menu
     def RandPass_strengthdisplay(self):
         password = self.Mainframe_passwordlabelRand.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
@@ -197,7 +216,7 @@ class Mainwindow(ctk.CTk):
         elif rank == 5:
             self.Mainframe_passwordstrength.configure(progress_color="green")
         self.check_btn.configure(state = "disabled")
-
+    #reseting the random password 
     def reset(self):
         self.Mainframe_passwordlabelRand.configure(text="")
         self.Slider.set(8)
@@ -211,21 +230,21 @@ class Mainwindow(ctk.CTk):
         self.Strength_label.configure(text = "")
         self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.configure(progress_color="")
-
+    #sliding function for the slider
     def sliding(self, value):
         self.lengthlabel.configure(text=int(value))
-
+    #switch to random password menu
     def randompass(self):
         self.delete_current()
         self.loadRandPass()
-        
+    #intiate asking questions
     def start(self):
         self.MainFrame_QuestionLabel.configure(text= self.split_string(self.GetRandQuesiton(), 20))
         self.start_btn.configure(state = "disabled")
         self.enter_btn.configure(state = "normal")
         self.skip_btn.configure(state = "normal")
         self.NumberOfQuestionAsked += 1
-
+    #reseting the main menu 
     def restart(self):
         self.MainFrame_QuestionLabel.configure(text= "Click start to start." )
         self.start_btn.configure(state = "normal")
@@ -240,18 +259,18 @@ class Mainwindow(ctk.CTk):
         self.ResetStartQuestions()
         self.Mainframe_passwordlabel.configure(text = "")
         self.NumberOfQuestionAsked = 0
-
+    #returning to the main menu
     def Return(self):
         self.delete_current()
         self.loadMainFrame()
-
+    #ending program
     def quit(self):
         self.destroy()
-
+    #switching to tutorial menu
     def tutorial(self):
         self.delete_current()
         self.loadtutorial()
-
+    #entering the answer
     def enter(self):
         CheckNumQuestion = self.CheckNumQuestionAsked(self.NumberOfQuestionAsked)
         if len(self.answer_entry.get()) != 0:
@@ -273,25 +292,25 @@ class Mainwindow(ctk.CTk):
             if not result:
                 self.check_btn.configure(state = "disabled")
                 self.copy_btn.configure(state = "disabled")
-            
+    #copying the password        
     def copy(self):
         password = self.Mainframe_passwordlabel.cget("text")
         self.clipboard_clear()
         self.clipboard_append(password)
         self.copy_btn.configure(state = "disabled")
-
+    #copying the password in random password menu
     def copyRand(self):
         password = self.Mainframe_passwordlabelRand.cget("text")
         self.clipboard_clear()
         self.clipboard_append(password)
         self.copy_btn.configure(state = "disabled")
-
+    #skiping question
     def skip(self):
         self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
         if self.GetRandQuesiton() == None:
             self.ResetStartQuestions()
             self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
-
+    #generate password in random password menu
     def random_generate(self):
         character_list = []
         
@@ -347,7 +366,7 @@ class Mainwindow(ctk.CTk):
         self.Mainframe_passwordlabelRand.configure(text=password)
         self.copy_btn.configure(state = "normal")
         self.check_btn.configure(state = "normal")
-
+    #delet the current menu
     def delete_current(self):
         for widget in self.MainFrameHolder.winfo_children():
             widget.forget()
@@ -371,7 +390,7 @@ class Mainwindow(ctk.CTk):
         self.MainFrameHolder.pack(padx=10, pady=10, fill="both", expand=True)
 
         self.loadMainFrame()
-
+    #loading main menu
     def loadMainFrame(self):
         #Frames
         self.MainMenu_sideFrame1 = ctk.CTkFrame(self.MainFrameHolder, fg_color="gray")
@@ -430,7 +449,7 @@ class Mainwindow(ctk.CTk):
         self.check_btn.pack(pady=5,padx=5)
         
         
-
+    #load random pass menu
     def loadRandPass(self):
 
         self.MainMenu_sideFrame1RAND = ctk.CTkFrame(self.MainFrameHolder, fg_color="light gray")
@@ -510,7 +529,7 @@ class Mainwindow(ctk.CTk):
         checkLow = ctk.StringVar(value="off")
         self.checkboxlow = ctk.CTkCheckBox(self.SECframeSector2,text="Lowercase",variable=checkLow,onvalue="on",offvalue="off")
         self.checkboxlow.pack(pady=5,padx=5)
-
+    #load tutorial menu
     def loadtutorial(self):
         self.tutorialFrame = ctk.CTkFrame(self.MainFrameHolder,fg_color="gray")
         self.tutorialFrame.pack(padx=10, pady=10, fill="both", expand=True)
