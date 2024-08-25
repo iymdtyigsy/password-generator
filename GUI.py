@@ -589,6 +589,11 @@ class Mainwindow(ctk.CTk):
         so keep it in mind and 
         you can reset or restart to redo the password-generating process for the best functionality. 
         Usually the copy and the check button that is not disabled properly
+
+        When you skip the question sometimes the question you already entered 
+        could appear again which is an error that will require fixing 
+        but it doesn’t affect the overall performance of the program 
+        but to keep that in mind. 
    
         """)
         self.textbox.configure(state = ctk.DISABLED)
