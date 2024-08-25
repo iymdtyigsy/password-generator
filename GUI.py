@@ -56,15 +56,33 @@ class Mainwindow(ctk.CTk):
         return check == 3          
     
     def password_generate_by_answer(self, answer):
+        has_space = False
+        has_empty = False
         answerslist = [str(items) for items in answer]#.replace(' ',"")
+        print(answerslist)
         random.shuffle(answerslist)
+        print(answerslist)
         between = ''
-        password = between.join(answerslist)#+(str(random.randrange(0, 100)))
         self.answers.clear()
         if not answerslist:
             self.check_btn.configure(state = "disabled")
             return None
-        return password
+        #return password
+        for answer in answerslist:
+            if isinstance(answer, str):
+                if " " in answer:
+                    has_space = True
+        if len(answerslist) <3:
+            has_empty = True
+        
+        if has_space:
+            return "You answered space in your answer"
+        elif has_empty:
+            return "You didn’t answer a question"
+        else:
+            # Generate a password based on the answers
+            password = between.join(answerslist)+(str(random.randrange(0, 100)))
+            return password
     
     def split_string(self, string: str, max_characters: int):
         lines = []
@@ -241,15 +259,17 @@ class Mainwindow(ctk.CTk):
         self.NumberOfQuestionAsked += 1
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
+
         if CheckNumQuestion:
             result = self.password_generate_by_answer(self.answers)
             self.MainFrame_QuestionLabel.configure(text = result and "Here is your password" or "You have not entered any answers press restart to restart")
             self.restart_btn.configure(state = "normal")
-            self.Mainframe_passwordlabel.configure(text = f"{result or ''}")
+            self.Mainframe_passwordlabel.configure(text = f"{result or 'You didn’t answer a question'}")
             self.check_btn.configure(state = "normal")
             self.copy_btn.configure(state = "normal")
+
             if not result:
-                self.check_btn.configure(state = "normal")
+                self.check_btn.configure(state = "disabled")
                 self.copy_btn.configure(state = "disabled")
             
     def copy(self):
@@ -294,14 +314,36 @@ class Mainwindow(ctk.CTk):
         if include_uppercase:
             character_list.extend(uppercase)
 
+        if not character_list and length < 4:
+            self.Mainframe_passwordlabelRand.configure(text = "Please select one option and at least a length of 4 characters")
+            return ""
+        if length < 4:
+            self.Mainframe_passwordlabelRand.configure(text=self.split_string("Cannot generate a password for a length of less than 4 characters!", 25))
+            return ""
         if not character_list:
             self.Mainframe_passwordlabelRand.configure(text = "Please select at least one character type!")
             return ""
+    
+        password = []
 
-        password = ''.join(random.choice(character_list) for _ in range(length))
+        if include_numbers:
+            password.append(random.choice(numbers))
+        if include_symbols:
+            password.append(random.choice(symbols))
+        if include_lowercase:
+           password.append(random.choice(lowercase))
+        if include_uppercase:
+           password.append(random.choice(uppercase))
+        
+        while len(password) < length:
+           password.append(random.choice(character_list))
 
-        self.copy_btn.configure(state = "normal")
+        random.shuffle(password)
+
+        password = ''.join(password)
+
         self.Mainframe_passwordlabelRand.configure(text=password)
+        self.copy_btn.configure(state = "normal")
         self.check_btn.configure(state = "normal")
 
     def delete_current(self):
@@ -507,4 +549,3 @@ class Mainwindow(ctk.CTk):
 
 if __name__ =="__main__":
     Mainwindow().mainloop()
-    
