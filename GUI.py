@@ -621,7 +621,7 @@ class Mainwindow(ctk.CTk):
         and went back to the main menu you will keep on answering questions 
         with out stoping to generate the password
         have to press restart everytime you generate the password or reset
-        on random password
+        on random password or just quit it
 
 
    
