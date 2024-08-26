@@ -1,14 +1,18 @@
 import tkinter as tk
-import customtkinter as ctk
 import random
 import copy
 import string
 import re
+
+import customtkinter as ctk
+
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue") 
 
+
 class Mainwindow(ctk.CTk):
 
+    #window for the password generator program.
     questionlist = [
     "What's your favorite animal?",
     "Which celebrity would you choose for your best friend?",
@@ -23,49 +27,73 @@ class Mainwindow(ctk.CTk):
     "What was your favorite subject in school?",
     "What do you enjoy doing in your free time?",
     "What is your hobby or one of your hobbies?",
+    "What is your favorite book?",
+    "What type of music do you enjoy the most?",
+    "If you could travel anywhere in the world, where would you go?",
+    "What’s your favorite movie genre?",
+    "What’s a hobby you’d like to pick up?",
+    "If you could have any superpower, what would it be?",
+    "What would you do if you won the lottery?",
+    "If you could meet any historical figure, who would it be?",
+    "What would you choose if you could live in any time period?",
+    "If you could switch lives with someone for a day, who would it be?"
     ]
     answers = []
     NumberOfQuestionAsked = 0
 
     CurrentClone = None
+    #getting deepcopy of the questionlist
     def GetStartQuestions(self):
         self.CurrentClone = copy.deepcopy(self.questionlist)
         return self.CurrentClone
 
+    #reseting the question to ask
     def ResetStartQuestions(self):
         self.CurrentClone = None
 
+    #getting the random chosen question to ask 
     def GetRandQuesiton(self):
         questions_list = self.GetStartQuestions()
-
-        if len(questions_list) > 1:
-            index = random.randrange(1, len(questions_list))
-        else:
-            index = 0
-
+        index = random.randint(0, len(questions_list)-1)
         question = questions_list[index]
         self.CurrentClone.pop(index)
         return question
-
-        #index = random.randint(0, len(questions_list)-1)
-        #question = questions_list[index]
-        #self.CurrentClone.pop(index)
-        #return question
-
+    
+    #checking the question is answered three times
     def CheckNumQuestionAsked(self, check):
         return check == 3          
     
-    def PassgenerateAlgo(self, answer):
-        answerslist = [str(items).replace(' ',"") for items in answer]
+    #generating the password from answers
+    def password_generate_by_answer(self, answer):
+        has_space = False
+        has_empty = False
+        answerslist = [str(items) for items in answer]#.replace(' ',"")
         random.shuffle(answerslist)
-        between = ''
-        password = between.join(answerslist)+(str(random.randrange(1, 100)))
+        between = ""
         self.answers.clear()
         if not answerslist:
             self.check_btn.configure(state = "disabled")
             return None
-        return password
-    
+        
+        #return password
+        for answer in answerslist:
+            if isinstance(answer, str):
+                if " " in answer:
+                    has_space = True
+        if len(answerslist) <3:
+            has_empty = True
+        
+        if has_space:
+            return "You answered space in your answer"
+        elif has_empty:
+            return "You didn't answer a question"
+        else:
+            # Generate a password based on the answers
+            password = between.join(answerslist)+(str(random.randrange(0, 100)))
+            #"-"
+            return password
+        
+    # spliting the strings so it fits in the label
     def split_string(self, string: str, max_characters: int):
         lines = []
         current_line = ""
@@ -82,6 +110,7 @@ class Mainwindow(ctk.CTk):
 
         return '\n'.join(lines)
     
+    #checking the strength of the password 
     def Pass_strengthcheck(self, password):
 
         length = len(password)
@@ -89,14 +118,54 @@ class Mainwindow(ctk.CTk):
         with open("common.txt","r") as f:
             common_password = f.read().splitlines()
         score = 0
-        if length < 8:
-            return 1, self.split_string("Very Weak: Password must be at least 8 characters long.", 20), 0.2
-        elif length >= 8 and length < 12:
+        
+        #check if there is a unicode or non printable character in the password
+        if any(ord(char) > 127 or not char.isprintable() for char in password):
+            return 0, self.split_string(f"password contains unicode or non-printable characters. can't be checked (password length:{str(length)})", 25), 0
+        
+        #check if the password is empty
+        elif len(password) == 0:
+            return 0, self.split_string(f"This is an empty password. can't be checked (password length:{str(length)})", 25), 0 
+        
+        #check if the password contains space or spaces
+        elif ' ' in password:
+            return 0, self.split_string(f"Password contains spaces. can't be checked (password length:{str(length)})", 25), 0
+        
+        #check if the password consist of the same characters repeated
+        elif len(set(password)) == 1:  
+            return 1, self.split_string(f"Very Weak: Password consist of the same character repeated. (password length:{str(length)}) ", 25), 0.2
+        
+        #check if the password is less than 8 characters
+        elif length < 8:
+            return 1, self.split_string(f"Very Weak: Password needs to be at least 8 characters long. (password length:{str(length)})", 25), 0.2
+
+        elif length >= 8 and length < 15:
             score += 1
-        elif length >= 12:
+
+        elif length >= 15 and length <25:
             score += 2
+
+        #seprate checker to check for very long passwords
+        elif length >= 25 and length <=50:
+            score += 2
+            if re.search(r"[A-Z]", password):
+                score += 1
+            if re.search(r"[a-z]", password):
+                score += 1
+            if re.search(r"\d", password):
+                score += 1
+            if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+                score += 1
+            if score == 3:
+                return 4, self.split_string(f"Good: this is a long password are you sure you can remember it ? (password length:{str(length)})", 25), 0.8
+            if score >= 4:
+                return 5, self.split_string(f"Strong: this is a long password are you sure you can remember it? (password length:{str(length)})", 25), 1.0
+                
+        #check if the password is way too long    
+        elif length > 50:
+            return 0, self.split_string(f"Password is too long for the program to check. (password length:{str(length)})", 25), 0
         if password in common_password:
-            return 1, self.split_string("Very Weak: This password is too common. Choose a more unique password.", 20), 0.2
+            return 1, self.split_string(f"Very Weak: This password is too common. Choose a more unique password. (password length:{str(length)})", 25), 0.2
         if re.search(r"[A-Z]", password):
             score += 1
         if re.search(r"[a-z]", password):
@@ -106,14 +175,15 @@ class Mainwindow(ctk.CTk):
         if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
             score += 1
         if score == 1:
-            return 2, "Weak", 0.4
+            return 2, f"Weak (password length:{str(length)})", 0.4
         elif score == 2:
-            return 3, "Fair", 0.6
+            return 3, f"Fair (password length:{str(length)})", 0.6
         elif score == 3:
-            return 4, "Good", 0.8
+            return 4, f"Good (password length:{str(length)})", 0.8
         elif score >= 4:
-            return 5, "Strong", 1.0
-    
+            return 5, f"Strong (password length:{str(length)})", 1.0
+        
+        #displaying the strength in label and progess bar
     def Pass_strengthdisplay(self):
         password = self.Mainframe_passwordlabel.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
@@ -132,7 +202,8 @@ class Mainwindow(ctk.CTk):
         elif rank == 5:
             self.Mainframe_passwordstrength.configure(progress_color="green")
         self.check_btn.configure(state = "disabled")
-    
+
+    #displaying the strength in label and progess bar in random password menu
     def RandPass_strengthdisplay(self):
         password = self.Mainframe_passwordlabelRand.cget("text")
         rank, message, progress = self.Pass_strengthcheck(password)
@@ -152,6 +223,7 @@ class Mainwindow(ctk.CTk):
             self.Mainframe_passwordstrength.configure(progress_color="green")
         self.check_btn.configure(state = "disabled")
 
+    #reseting the random password 
     def reset(self):
         self.Mainframe_passwordlabelRand.configure(text="")
         self.Slider.set(8)
@@ -160,18 +232,22 @@ class Mainwindow(ctk.CTk):
         self.checkboxsmb.deselect()
         self.checkboxlow.deselect()
         self.checkboxup.deselect()
-        self.copy_btn
+        self.copy_btn.configure(state = "disabled")
+        self.check_btn.configure(state = "disabled")
         self.Strength_label.configure(text = "")
         self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.configure(progress_color="")
 
+    #sliding function for the slider
     def sliding(self, value):
         self.lengthlabel.configure(text=int(value))
 
+    #switch to random password menu
     def randompass(self):
         self.delete_current()
         self.loadRandPass()
-        
+
+    #intiate asking questions
     def start(self):
         self.MainFrame_QuestionLabel.configure(text= self.split_string(self.GetRandQuesiton(), 20))
         self.start_btn.configure(state = "disabled")
@@ -179,6 +255,7 @@ class Mainwindow(ctk.CTk):
         self.skip_btn.configure(state = "normal")
         self.NumberOfQuestionAsked += 1
 
+    #reseting the main menu 
     def restart(self):
         self.MainFrame_QuestionLabel.configure(text= "Click start to start." )
         self.start_btn.configure(state = "normal")
@@ -194,17 +271,21 @@ class Mainwindow(ctk.CTk):
         self.Mainframe_passwordlabel.configure(text = "")
         self.NumberOfQuestionAsked = 0
 
+    #returning to the main menu
     def Return(self):
         self.delete_current()
         self.loadMainFrame()
 
+    #ending program
     def quit(self):
         self.destroy()
 
+    #switching to tutorial menu
     def tutorial(self):
         self.delete_current()
         self.loadtutorial()
 
+    #entering the answer
     def enter(self):
         CheckNumQuestion = self.CheckNumQuestionAsked(self.NumberOfQuestionAsked)
         if len(self.answer_entry.get()) != 0:
@@ -214,36 +295,42 @@ class Mainwindow(ctk.CTk):
         self.NumberOfQuestionAsked += 1
         self.enter_btn.configure(state = CheckNumQuestion and "disabled" or "normal" )
         self.skip_btn.configure(state = CheckNumQuestion and "disabled" or "normal")
+        
         if CheckNumQuestion:
-            result = self.PassgenerateAlgo(self.answers)
+            result = self.password_generate_by_answer(self.answers)
             self.MainFrame_QuestionLabel.configure(text = result and "Here is your password" or "You have not entered any answers press restart to restart")
             self.restart_btn.configure(state = "normal")
-            self.Mainframe_passwordlabel.configure(text = f"{result or ''}")
+            self.Mainframe_passwordlabel.configure(text = f"{result or 'You didn’t answer a question'}")
             self.check_btn.configure(state = "normal")
             self.copy_btn.configure(state = "normal")
+
             if not result:
                 self.check_btn.configure(state = "disabled")
                 self.copy_btn.configure(state = "disabled")
-            
+
+    #copying the password        
     def copy(self):
         password = self.Mainframe_passwordlabel.cget("text")
         self.clipboard_clear()
         self.clipboard_append(password)
         self.copy_btn.configure(state = "disabled")
 
+    #copying the password in random password menu
     def copyRand(self):
         password = self.Mainframe_passwordlabelRand.cget("text")
         self.clipboard_clear()
         self.clipboard_append(password)
         self.copy_btn.configure(state = "disabled")
 
+    #skiping question
     def skip(self):
         self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
         if self.GetRandQuesiton() == None:
             self.ResetStartQuestions()
             self.MainFrame_QuestionLabel.configure(text= self.GetRandQuesiton())
 
-    def generate(self):
+    #generate password in random password menu
+    def random_generate(self):
         character_list = []
         
         length = int(self.Slider.get())
@@ -267,16 +354,39 @@ class Mainwindow(ctk.CTk):
         if include_uppercase:
             character_list.extend(uppercase)
 
+        if not character_list and length < 4:
+            self.Mainframe_passwordlabelRand.configure(text = "Please select one option and at least a length of 4 characters")
+            return ""
+        if length < 4:
+            self.Mainframe_passwordlabelRand.configure(text=self.split_string("Cannot generate a password for a length of less than 4 characters!", 25))
+            return ""
         if not character_list:
             self.Mainframe_passwordlabelRand.configure(text = "Please select at least one character type!")
             return ""
+    
+        password = []
 
-        password = ''.join(random.choice(character_list) for _ in range(length))
+        if include_numbers:
+            password.append(random.choice(numbers))
+        if include_symbols:
+            password.append(random.choice(symbols))
+        if include_lowercase:
+           password.append(random.choice(lowercase))
+        if include_uppercase:
+           password.append(random.choice(uppercase))
+        
+        while len(password) < length:
+           password.append(random.choice(character_list))
 
-        self.copy_btn.configure(state = "normal")
+        random.shuffle(password)
+
+        password = ''.join(password)
+
         self.Mainframe_passwordlabelRand.configure(text=password)
+        self.copy_btn.configure(state = "normal")
         self.check_btn.configure(state = "normal")
 
+    #delet the current menu
     def delete_current(self):
         for widget in self.MainFrameHolder.winfo_children():
             widget.forget()
@@ -301,6 +411,7 @@ class Mainwindow(ctk.CTk):
 
         self.loadMainFrame()
 
+    #loading main menu
     def loadMainFrame(self):
         #Frames
         self.MainMenu_sideFrame1 = ctk.CTkFrame(self.MainFrameHolder, fg_color="gray")
@@ -326,7 +437,7 @@ class Mainwindow(ctk.CTk):
         self.Strength_label = ctk.CTkLabel(self.MainMenu_Mainframe, text="")
         self.Strength_label.pack(pady=10)
 
-        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_Mainframe,)
+        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_Mainframe, progress_color="")
         self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.pack(pady=10,padx=10)
                                             
@@ -359,7 +470,7 @@ class Mainwindow(ctk.CTk):
         self.check_btn.pack(pady=5,padx=5)
         
         
-
+    #load random pass menu
     def loadRandPass(self):
 
         self.MainMenu_sideFrame1RAND = ctk.CTkFrame(self.MainFrameHolder, fg_color="light gray")
@@ -386,21 +497,21 @@ class Mainwindow(ctk.CTk):
         self.Strength_label = ctk.CTkLabel(self.MainMenu_MainframeFir, text="")
         self.Strength_label.pack(pady=10)
 
-        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_MainframeFir)
+        self.Mainframe_passwordstrength = ctk.CTkProgressBar(self.MainMenu_MainframeFir, progress_color="")
         self.Mainframe_passwordstrength.set(0)
         self.Mainframe_passwordstrength.pack(pady=10, padx=10)
 
         self.passwordlength = ctk.CTkLabel(self.SECframeSector1,text=("Password Length"))
         self.passwordlength.pack()
 
-        self.Slider = ctk.CTkSlider(self.SECframeSector1, from_=0, to=50,command=self.sliding,height = 20)
+        self.Slider = ctk.CTkSlider(self.SECframeSector1, from_=0, to=50,command=self.sliding,height = 20,)
         self.Slider.pack(side = "right")
 
         self.Slider.set(8)
                                             
         #buttons
 
-        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Generate", command=self.generate)
+        self.generate_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Generate", command=self.random_generate)
         self.generate_btn.pack(pady=10,padx=10)
 
         self.copy_btn = ctk.CTkButton(self.MainMenu_sideFrame1RAND, text="Copy", command=self.copyRand, state = "disabled")
@@ -439,7 +550,7 @@ class Mainwindow(ctk.CTk):
         checkLow = ctk.StringVar(value="off")
         self.checkboxlow = ctk.CTkCheckBox(self.SECframeSector2,text="Lowercase",variable=checkLow,onvalue="on",offvalue="off")
         self.checkboxlow.pack(pady=5,padx=5)
-
+    #load tutorial menu
     def loadtutorial(self):
         self.tutorialFrame = ctk.CTkFrame(self.MainFrameHolder,fg_color="gray")
         self.tutorialFrame.pack(padx=10, pady=10, fill="both", expand=True)
@@ -455,29 +566,58 @@ class Mainwindow(ctk.CTk):
 
         self.textbox.insert("0.0", "Tutorial\n\n" + 
         """
-        1.Main Menu 
-          At Main Menu which is the password generator which generates password from the 
-          user answering 3 questions. first you press the Start button on the left hand side 
-          which is labeled Start, then the program would display question on the big white label, 
-          you enter your answer in the entry box which has "enter your response" on it, 
-          then you press the enter button on your left hand side which has the enter 
-          labeled on it (answerd 1st time), a new question will appear on the white label and you 
-          then enter your answers again (answerd 2nd time) as the process before, for totaly three 
-          times afterwards including the two times before. 
-          
-          so the next time you answers the question will be the third time. 
-          the program will then display the password in the white label below the entry box. 
-          you can copy the password by pressing copy button, check the password strength 
-          by pressing the check button. when the check button is pressed a message 
-          describing the strength of the password will display under the white label 
-          with the password in it. the colour of the progess bar repersents differnt
-          strength of the password (red = very weak, orange = weak, yellow = fair, lime green 
-          = strong, green = very strong) and the progess of the bar is increase as the strength 
-          of the bar is increased. 
+        1. Main Menu At Main Menu which is the password generator which generates passwords 
+        from the user answering 3 questions. 
+        first, you press the Start button on the left-hand side which is labelled Start, 
+        and then the program displays the question on the big white label, 
+        you enter your answer in the entry box which has "enter your response" on it, 
+        then you press the enter button on 
+        your left-hand side which has the enter labelled on it (answered 1st time), 
+        a new question will appear on the white label and 
+        you then enter your answers again (answered 2nd time) as the process before, 
+        for totally three times afterwards including the two times. 
+        so the next time you answer the question will be the third time. 
+        the program will then display the password in the white label below the entry box.
 
+        you can copy the password by pressing the copy button, 
+        and check the password strength by pressing the check button. 
+        when the check button is pressed a message describing the strength of 
+        the password will display under the white label with the password in it. 
+        the colour of the progress bar represents different strengths of the password 
+        (red = very weak, orange = weak, yellow = fair, lime green = strong, green = very strong) 
+        and the progress of the bar increases as the strength of the bar is increased.
+        you can also skip questions by pressing the skip button on your left 
+        press restart to restart the process of answering questions to generate a password. 
+        tutorial buttons send you to the tutorial menu here. return button returns to the main menu. 
+        quit button ends the program. 
+
+        2. random password - press random password to go to the random password menu 
+        at random password you can generate a password by 
+        selecting the types of characters you want in your password 
+        by ticking the boxes and selecting the length by sliding the slider. 
+        press generate after you have selected your options for the characters, 
+        you want in the password and after you have selected your length from the slider. 
+        copy button copies the password generated. check button checks the password strength. 
+        reset button resets to the default setting for 
+        the options of type character and the password length. 
+        tutorial buttons send you to the tutorial menu here. 
+        return button returns to the main menu. 
+        quit button ends the program. 
+
+        3. Grey-out buttons are disabled 
+        which means you can't press them 
+        sometimes buttons are not disabled properly 
+        so keep it in mind and 
+        you can reset or restart to redo the password-generating process for the best functionality. 
+        Usually the copy and the check button that is not disabled properly
+
+        When you skip the question sometimes the question you already entered 
+        could appear again which is an error that will require fixing 
+        but it doesn’t affect the overall performance of the program 
+        but to keep that in mind. 
+   
         """)
         self.textbox.configure(state = ctk.DISABLED)
 
 if __name__ =="__main__":
     Mainwindow().mainloop()
-    
