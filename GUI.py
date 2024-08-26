@@ -616,8 +616,10 @@ class Mainwindow(ctk.CTk):
         but it doesn’t affect the overall performance of the program 
         but to keep that in mind. 
 
-        there is a error on if you generated the password in the main menu and then you went straight to random password
-        and went back to the main menu you will keep on answering questions with out stoping to generate the password
+        there is a error on if you generated the password in the main menu 
+        and then you went straight to random password
+        and went back to the main menu you will keep on answering questions 
+        with out stoping to generate the password
 
 
    
