@@ -1,4 +1,3 @@
-
 """This program is a password generator that has functions of
    random password generating, 
    password generating from the user answering 3 questions.
