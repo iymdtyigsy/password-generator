@@ -96,8 +96,9 @@ class MainWindow(ctk.CTk):
         elif has_empty:
             return "You didn't answer a question"
         else:
-            password = between.join(answers_list) + \
-                (str(random.randrange(0, 100)))
+            password = (
+                between.join(answers_list)+(str(random.randrange(0, 100)))
+                )
 
             return password  # return password
 
